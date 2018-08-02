@@ -4,19 +4,16 @@
 
 namespace th
 {
-	class TH10Hook
+	class TH10Hook :
+		public Object
 	{
 	public:
-		static void StartHook();
-		static void StopHook();
-
 		TH10Hook();
 		~TH10Hook();
 
 	private:
-		static void HookProc(HANDLE dllMainThread);
+		void HookProc(HANDLE dllMainThread);
 
-		static boost::thread s_hookThread;
-
+		boost::thread s_hookThread;
 	};
 }

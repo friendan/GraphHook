@@ -33,7 +33,7 @@ namespace di
 			BOOST_THROW_EXCEPTION(Exception() << err_str("Please run as administrator."));
 	}
 
-	void DllInjector::injectDll(Process& process, const std::string& dllPath)
+	void DllInjector::inject(Process& process, const std::string& dllPath)
 	{
 		std::wstring dllPathW = bl::conv::utf_to_utf<wchar_t>(dllPath);
 		size_t dllPathSize = (dllPathW.length() + 1) * sizeof(wchar_t);
@@ -76,7 +76,7 @@ namespace di
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
-	void DllInjector::uninjectDll(Process& process, const std::string& dllName)
+	void DllInjector::uninject(Process& process, const std::string& dllName)
 	{
 		HMODULE module = process.findModuleByName(dllName);
 		if (module == nullptr)

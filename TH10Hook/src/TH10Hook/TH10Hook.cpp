@@ -5,20 +5,22 @@
 
 namespace th
 {
-	boost::thread TH10Hook::s_hookThread;
-
-	void TH10Hook::StartHook()
+	TH10Hook::TH10Hook()
 	{
-		DWORD threadId = GetCurrentThreadId();
-		HANDLE dllMainThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
+		MessageBox(nullptr, _T("×¢ÈëDLL¡£"), _T("TH10Hook"), MB_OK);
 
-		s_hookThread = boost::thread(boost::bind(&TH10Hook::HookProc,
-			boost::placeholders::_1), dllMainThread);
+		//DWORD threadId = GetCurrentThreadId();
+		//HANDLE dllMainThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
+
+		//s_hookThread = boost::thread(boost::bind(&TH10Hook::HookProc, this,
+		//	boost::placeholders::_1), dllMainThread);
 	}
 
-	void TH10Hook::StopHook()
+	TH10Hook::~TH10Hook()
 	{
-		s_hookThread.join();
+		//s_hookThread.join();
+
+		MessageBox(nullptr, _T("Ð¶ÔØDLL¡£"), _T("TH10Hook"), MB_OK);
 	}
 
 	void TH10Hook::HookProc(HANDLE dllMainThread)
@@ -27,15 +29,5 @@ namespace th
 		CloseHandle(dllMainThread);
 
 
-	}
-
-	TH10Hook::TH10Hook()
-	{
-		//MessageBox(nullptr, _T("×¢ÈëDLL¡£"), _T("GraphHook"), MB_OK);
-	}
-
-	TH10Hook::~TH10Hook()
-	{
-		//MessageBox(nullptr, _T("Ð¶ÔØDLL¡£"), _T("GraphHook"), MB_OK);
 	}
 }
