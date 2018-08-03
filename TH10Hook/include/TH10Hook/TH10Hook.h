@@ -12,8 +12,11 @@ namespace th
 		~TH10Hook();
 
 	private:
-		void HookProc(HANDLE dllMainThread);
+		void hookProc(HANDLE dllMainThread);
 
-		boost::thread s_hookThread;
+		boost::thread m_thread;
+		boost::mutex m_mutex;
+		boost::condition_variable m_cv;
+		bool m_quit;
 	};
 }

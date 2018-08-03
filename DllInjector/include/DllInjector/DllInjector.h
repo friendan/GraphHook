@@ -7,8 +7,8 @@ namespace di
 	class DllInjector
 	{
 	public:
-		void enableDebugPrivilege();
-		void inject(Process& process, const std::string& dllPath);
-		void uninject(Process& process, const std::string& dllName);
+		static void EnableDebugPrivilege();
+		static void Inject(Process& process, const std::string& dllPath);
+		static void Uninject(Process& process, const std::string& dllName);
 	};
 }

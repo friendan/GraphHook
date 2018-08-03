@@ -41,9 +41,8 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 				BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str("文件不存在：" + dllPath));
 
 			win::Process process(pid);
-			di::DllInjector dllInjector;
-			dllInjector.enableDebugPrivilege();
-			dllInjector.inject(process, dllPath);
+			di::DllInjector::EnableDebugPrivilege();
+			di::DllInjector::Inject(process, dllPath);
 		}
 		else if (vm.count("uninject") && !vm.count("inject"))
 		{
@@ -51,9 +50,8 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 			std::string dllName = vm["dll"].as<std::string>();
 
 			win::Process process(pid);
-			di::DllInjector dllInjector;
-			dllInjector.enableDebugPrivilege();
-			dllInjector.uninject(process, dllName);
+			di::DllInjector::EnableDebugPrivilege();
+			di::DllInjector::Uninject(process, dllName);
 		}
 		else
 		{

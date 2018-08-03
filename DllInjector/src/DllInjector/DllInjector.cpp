@@ -8,7 +8,7 @@ namespace di
 {
 	namespace bl = boost::locale;
 
-	void DllInjector::enableDebugPrivilege()
+	void DllInjector::EnableDebugPrivilege()
 	{
 		HANDLE token = nullptr;
 		if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token))
@@ -33,7 +33,7 @@ namespace di
 			BOOST_THROW_EXCEPTION(Exception() << err_str("Please run as administrator."));
 	}
 
-	void DllInjector::inject(Process& process, const std::string& dllPath)
+	void DllInjector::Inject(Process& process, const std::string& dllPath)
 	{
 		std::wstring dllPathW = bl::conv::utf_to_utf<wchar_t>(dllPath);
 		size_t dllPathSize = (dllPathW.length() + 1) * sizeof(wchar_t);
@@ -54,17 +54,17 @@ namespace di
 		if (written != dllPathSize)
 			BOOST_THROW_EXCEPTION(Exception() << err_str("written != dllPathSize"));
 
-		HMODULE kernel32 = GetModuleHandle(_T("kernel32.dll"));
-		if (kernel32 == nullptr)
+		HMODULE kernel32Dll = GetModuleHandle(_T("kernel32.dll"));
+		if (kernel32Dll == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
-		FARPROC loadLibrary = GetProcAddress(kernel32, "LoadLibraryW");
+		FARPROC loadLibrary = GetProcAddress(kernel32Dll, "LoadLibraryW");
 		if (loadLibrary == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
 		DWORD threadId = 0;
 		HANDLE remoteThread = CreateRemoteThread(process.get(), nullptr, 0,
-			(LPTHREAD_START_ROUTINE)loadLibrary, remoteMemory, 0, &threadId);
+			reinterpret_cast<LPTHREAD_START_ROUTINE>(loadLibrary), remoteMemory, 0, &threadId);
 		if (remoteThread == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
@@ -76,23 +76,23 @@ namespace di
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
-	void DllInjector::uninject(Process& process, const std::string& dllName)
+	void DllInjector::Uninject(Process& process, const std::string& dllName)
 	{
 		HMODULE module = process.findModuleByName(dllName);
 		if (module == nullptr)
 			return;
 
-		HMODULE kernel32 = GetModuleHandle(_T("kernel32.dll"));
-		if (kernel32 == nullptr)
+		HMODULE kernel32Dll = GetModuleHandle(_T("kernel32.dll"));
+		if (kernel32Dll == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
-		FARPROC freeLibrary = GetProcAddress(kernel32, "FreeLibrary");
+		FARPROC freeLibrary = GetProcAddress(kernel32Dll, "FreeLibrary");
 		if (freeLibrary == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
 		DWORD threadId = 0;
 		HANDLE remoteThread = CreateRemoteThread(process.get(), nullptr, 0,
-			(LPTHREAD_START_ROUTINE)freeLibrary, module, 0, &threadId);
+			reinterpret_cast<LPTHREAD_START_ROUTINE>(freeLibrary), module, 0, &threadId);
 		if (remoteThread == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
