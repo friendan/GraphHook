@@ -30,12 +30,30 @@
     <ClInclude Include="include\TH10Hook\TH10Hook.h">
       <Filter>头文件\TH10Hook</Filter>
     </ClInclude>
+    <ClInclude Include="include\TH10Hook\D3D9Hook.h">
+      <Filter>头文件\TH10Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TH10Hook\MinHookWrapper.h">
+      <Filter>头文件\TH10Hook</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TH10Hook\MinHookFunc.h">
+      <Filter>头文件\TH10Hook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\TH10Hook\DllMain.cpp">
       <Filter>源文件\TH10Hook</Filter>
     </ClCompile>
     <ClCompile Include="src\TH10Hook\TH10Hook.cpp">
+      <Filter>源文件\TH10Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TH10Hook\D3D9Hook.cpp">
+      <Filter>源文件\TH10Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TH10Hook\MinHookWrapper.cpp">
+      <Filter>源文件\TH10Hook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TH10Hook\MinHookFunc.cpp">
       <Filter>源文件\TH10Hook</Filter>
     </ClCompile>
   </ItemGroup>

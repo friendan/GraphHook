@@ -106,13 +106,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;TH10HOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_67_0;..\..\..\cpp\cpp-git\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_67_0;..\..\..\cpp\cpp-git\cpp\include;..\..\minhook-1.3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Debug;..\..\minhook-1.3.3\build\VC15\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cpp.lib;libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)TH10Hook.dll $(OutDir)TH10Hook64.dll</Command>
@@ -126,15 +126,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;TH10HOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_67_0;..\..\..\cpp\cpp-git\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_67_0;..\..\..\cpp\cpp-git\cpp\include;..\..\minhook-1.3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib32-msvc-14.1;..\..\..\cpp\cpp-git\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib32-msvc-14.1;..\..\..\cpp\cpp-git\Release;..\..\minhook-1.3.3\build\VC15\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cpp.lib;libMinHook.x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)TH10Hook.dll $(OutDir)TH10Hook32.dll</Command>
@@ -148,15 +148,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;TH10HOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_67_0;..\..\..\cpp\cpp-git\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_67_0;..\..\..\cpp\cpp-git\cpp\include;..\..\minhook-1.3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Release;..\..\minhook-1.3.3\build\VC15\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cpp.lib;libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)TH10Hook.dll $(OutDir)TH10Hook64.dll</Command>
@@ -164,11 +164,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\TH10Hook\Common.h" />
+    <ClInclude Include="include\TH10Hook\D3D9Hook.h" />
     <ClInclude Include="include\TH10Hook\DllMain.h" />
+    <ClInclude Include="include\TH10Hook\MinHookFunc.h" />
+    <ClInclude Include="include\TH10Hook\MinHookWrapper.h" />
     <ClInclude Include="include\TH10Hook\TH10Hook.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\TH10Hook\D3D9Hook.cpp" />
     <ClCompile Include="src\TH10Hook\DllMain.cpp" />
+    <ClCompile Include="src\TH10Hook\MinHookFunc.cpp" />
+    <ClCompile Include="src\TH10Hook\MinHookWrapper.cpp" />
     <ClCompile Include="src\TH10Hook\TH10Hook.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
