@@ -40,18 +40,18 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 			if (!bfs::exists(dllPath))
 				BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str("文件不存在：" + dllPath));
 
-			win::Process process(pid);
-			di::DllInjector::EnableDebugPrivilege();
-			di::DllInjector::Inject(process, dllPath);
+			win::Process::EnableDebugPrivilege();
+			win::Process target(pid);
+			di::DllInjector::Inject(target, dllPath);
 		}
 		else if (vm.count("uninject") && !vm.count("inject"))
 		{
 			DWORD pid = vm["pid"].as<DWORD>();
 			std::string dllName = vm["dll"].as<std::string>();
 
-			win::Process process(pid);
-			di::DllInjector::EnableDebugPrivilege();
-			di::DllInjector::Uninject(process, dllName);
+			win::Process::EnableDebugPrivilege();
+			win::Process target(pid);
+			di::DllInjector::Uninject(target, dllName);
 		}
 		else
 		{
@@ -64,7 +64,6 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 	{
 		std::string info = boost::current_exception_diagnostic_information();
 		BOOST_LOG_TRIVIAL(error) << info;
-		//MessageBox(nullptr, _T("发生异常，详细信息请查看DllInjector.log。"), _T("DllInjector"), MB_OK | MB_ICONERROR);
 		return 1;
 	}
 }

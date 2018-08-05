@@ -18,11 +18,11 @@ namespace th
 	TH10Hook::TH10Hook() :
 		m_quit(false)
 	{
-		DWORD threadId = GetCurrentThreadId();
-		HANDLE dllMainThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
+		//DWORD threadId = GetCurrentThreadId();
+		//HANDLE dllMainThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
 
 		m_thread = boost::thread(boost::bind(&TH10Hook::hookProc, this,
-			boost::placeholders::_1), dllMainThread);
+			boost::placeholders::_1), nullptr);
 	}
 
 	TH10Hook::~TH10Hook()
@@ -31,28 +31,30 @@ namespace th
 			boost::lock_guard<boost::mutex> lock(m_mutex);
 			m_quit = true;
 		}
+		m_cv.notify_one();
+
 		if (m_thread.joinable())
 			m_thread.join();
 	}
 
 	void TH10Hook::hookProc(HANDLE dllMainThread)
 	{
-		WaitForSingleObject(dllMainThread, INFINITE);
-		CloseHandle(dllMainThread);
+		//WaitForSingleObject(dllMainThread, INFINITE);
+		//CloseHandle(dllMainThread);
 
-		std::string logName = win::Utils::GetModuleDir(g_dllModule) + "\\TH10Hook.log";
+		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\TH10Hook.log";
 		//blog::add_file_log(logName);
-		std::wstring logNameW = bl::conv::utf_to_utf<wchar_t>(logName);
-		std::ofstream ofs(logNameW);
 
 		try
 		{
 			D3D9Hook d3d9Hook;
 			d3d9Hook.hook();
 
-			boost::unique_lock<boost::mutex> lock(m_mutex);
-			while (!m_quit)
-				m_cv.wait(lock);
+			{
+				boost::unique_lock<boost::mutex> lock(m_mutex);
+				while (!m_quit)
+					m_cv.wait(lock);
+			}
 
 			d3d9Hook.unhook();
 		}
@@ -60,6 +62,8 @@ namespace th
 		{
 			std::string info = boost::current_exception_diagnostic_information();
 			//BOOST_LOG_TRIVIAL(error) << info;
+			std::wstring logNameW = bl::conv::utf_to_utf<wchar_t>(logName);
+			std::ofstream ofs(logNameW);
 			ofs << info;
 		}
 	}

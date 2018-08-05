@@ -10,5 +10,8 @@ namespace th
 
 		void hookAll();
 		void unhookAll();
+
+	private:
+		bool m_enabled;
 	};
 }

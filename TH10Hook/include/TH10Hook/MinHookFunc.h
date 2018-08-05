@@ -19,5 +19,6 @@ namespace th
 
 	private:
 		LPVOID m_target;
+		bool m_enabled;
 	};
 }

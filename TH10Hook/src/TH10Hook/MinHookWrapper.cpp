@@ -5,7 +5,8 @@
 
 namespace th
 {
-	MinHookWrapper::MinHookWrapper()
+	MinHookWrapper::MinHookWrapper() :
+		m_enabled(false)
 	{
 		MH_STATUS status = MH_Initialize();
 		if (status != MH_OK)
@@ -14,6 +15,9 @@ namespace th
 
 	MinHookWrapper::~MinHookWrapper()
 	{
+		if (m_enabled)
+			MH_DisableHook(MH_ALL_HOOKS);
+
 		MH_Uninitialize();
 	}
 
@@ -22,6 +26,8 @@ namespace th
 		MH_STATUS status = MH_EnableHook(MH_ALL_HOOKS);
 		if (status != MH_OK)
 			BOOST_THROW_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
+
+		m_enabled = true;
 	}
 
 	void MinHookWrapper::unhookAll()
@@ -29,5 +35,7 @@ namespace th
 		MH_STATUS status = MH_DisableHook(MH_ALL_HOOKS);
 		if (status != MH_OK)
 			BOOST_THROW_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
+
+		m_enabled = false;
 	}
 }

@@ -2,7 +2,6 @@
 #include "TH10Hook/D3D9Hook.h"
 
 #include <cpp/ScopeGuard.h>
-#include <MinHook.h>
 
 namespace th
 {
@@ -75,6 +74,11 @@ namespace th
 		if (RegisterClassEx(&wcex) == 0)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
+		ON_SCOPE_EXIT([&wcex]()
+		{
+			UnregisterClass(wcex.lpszClassName, wcex.hInstance);
+		});
+
 		HWND window = CreateWindowEx(0, wcex.lpszClassName, _T("TH10Hook"), WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, wcex.hInstance, nullptr);
 		if (window == nullptr)
@@ -140,7 +144,9 @@ namespace th
 	HRESULT D3D9Hook::presentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
 		HWND destWindowOverride, CONST RGNDATA* dirtyRegion)
 	{
+
 		HRESULT hr = m_presentOrig(d3dDevice9, sourceRect, destRect, destWindowOverride, dirtyRegion);
+
 		return hr;
 	}
 
