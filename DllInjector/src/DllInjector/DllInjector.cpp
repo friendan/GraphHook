@@ -10,11 +10,11 @@
 namespace di
 {
 	namespace bi = boost::interprocess;
-	namespace bl = boost::locale;
+	namespace blc = boost::locale::conv;
 
 	void DllInjector::Inject(Process& target, const std::string& dllPath)
 	{
-		std::wstring dllPathW = bl::conv::utf_to_utf<wchar_t>(dllPath);
+		std::wstring dllPathW = blc::utf_to_utf<wchar_t>(dllPath);
 		size_t dllPathSize = (dllPathW.length() + 1) * sizeof(wchar_t);
 
 		LPVOID remoteMemory = VirtualAllocEx(target.get(), nullptr, dllPathSize, MEM_RESERVE | MEM_COMMIT,
@@ -83,14 +83,11 @@ namespace di
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
-	void DllInjector::Hook(const std::string& dllPath, const std::string& hookFuncName,
-		const std::string& unhookFuncName, const std::string& className,
-		const std::string& windowName, const std::string& namedMutexName,
-		const std::string& namedCondName)
+	void DllInjector::HookProc(const std::string& dllPath, const std::string& hookFuncName,
+		const std::string& unhookFuncName, DWORD threadId, const std::string& hookMutexName,
+		const std::string& hookCondName)
 	{
-		std::wstring dllPathW = bl::conv::utf_to_utf<wchar_t>(dllPath);
-		std::wstring classNameW = bl::conv::utf_to_utf<wchar_t>(className);
-		std::wstring windowNameW = bl::conv::utf_to_utf<wchar_t>(windowName);
+		std::wstring dllPathW = blc::utf_to_utf<wchar_t>(dllPath);
 
 		HMODULE dll = LoadLibrary(dllPathW.c_str());
 		if (dll == nullptr)
@@ -101,8 +98,8 @@ namespace di
 			FreeLibrary(dll);
 		});
 
-		typedef HHOOK(WINAPI *HookFunc_t)(LPCTSTR, LPCTSTR);
-		typedef void(WINAPI *UnhookFunc_t)(HHOOK);
+		typedef bool(*HookFunc_t)(DWORD);
+		typedef void(*UnhookFunc_t)();
 
 		HookFunc_t hookFunc = reinterpret_cast<HookFunc_t>(GetProcAddress(dll, hookFuncName.c_str()));
 		if (hookFunc == nullptr)
@@ -112,17 +109,18 @@ namespace di
 		if (unhookFunc == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
-		HHOOK hook = hookFunc(classNameW.empty() ? nullptr : classNameW.c_str(),
-			windowNameW.empty() ? nullptr : windowNameW.c_str());
+		if (!hookFunc(threadId))
+			BOOST_THROW_EXCEPTION(Exception() << err_str("挂钩函数失败，详细信息请查看钩子DLL的log文件。"));
 
-		ON_SCOPE_EXIT([&]()
+		ON_SCOPE_EXIT([unhookFunc]()
 		{
-			unhookFunc(hook);
+			unhookFunc();
 		});
 
-		bi::named_mutex namedMutex(bi::create_only, namedMutexName.c_str());
-		bi::named_condition namedCond(bi::create_only, namedCondName.c_str());
-		bi::scoped_lock<bi::named_mutex> lock(namedMutex);
-		namedCond.wait(lock);
+		bi::named_mutex hookMutex(bi::open_only, hookMutexName.c_str());
+		bi::named_condition hookCond(bi::open_only, hookCondName.c_str());
+		bi::scoped_lock<bi::named_mutex> lock(hookMutex);
+		hookCond.notify_one();
+		hookCond.wait(lock);
 	}
 }

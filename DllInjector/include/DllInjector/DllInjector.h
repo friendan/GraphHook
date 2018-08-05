@@ -10,9 +10,8 @@ namespace di
 		static void Inject(Process& target, const std::string& dllPath);
 		static void Uninject(Process& target, const std::string& dllName);
 
-		static void Hook(const std::string& dllPath, const std::string& hookFuncName,
-			const std::string& unhookFuncName, const std::string& className,
-			const std::string& windowName, const std::string& namedMutexName,
-			const std::string& namedCondName);
+		static void HookProc(const std::string& dllPath, const std::string& hookFuncName,
+			const std::string& unhookFuncName, DWORD threadId, const std::string& hookMutexName,
+			const std::string& hookCondName);
 	};
 }

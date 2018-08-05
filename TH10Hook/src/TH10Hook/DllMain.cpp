@@ -5,7 +5,6 @@
 
 HMODULE g_dllModule = nullptr;
 //cpp::sp<th::TH10Hook> g_th10Hook;
-th::TH10Hook g_th10Hook;
 
 BOOL APIENTRY DllMain(HMODULE module, DWORD reasonForCall, LPVOID reserved)
 {
