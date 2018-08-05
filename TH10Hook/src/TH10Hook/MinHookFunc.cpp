@@ -51,7 +51,7 @@ namespace th
 		std::swap(m_enabled, other.m_enabled);
 	}
 
-	void MinHookFunc::hook()
+	void MinHookFunc::enable()
 	{
 		if (m_target == nullptr)
 			BOOST_THROW_EXCEPTION(Exception() << err_str("m_target == nullptr"));
@@ -63,7 +63,7 @@ namespace th
 		m_enabled = true;
 	}
 
-	void MinHookFunc::unhook()
+	void MinHookFunc::disable()
 	{
 		if (m_target == nullptr)
 			BOOST_THROW_EXCEPTION(Exception() << err_str("m_target == nullptr"));

@@ -127,12 +127,12 @@ namespace th
 
 	void D3D9Hook::hook()
 	{
-		m_minHook.hookAll();
+		m_minHook.enableAll();
 	}
 
 	void D3D9Hook::unhook()
 	{
-		m_minHook.unhookAll();
+		m_minHook.disableAll();
 	}
 
 	HRESULT D3D9Hook::resetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters)

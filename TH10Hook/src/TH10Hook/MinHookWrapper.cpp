@@ -21,7 +21,7 @@ namespace th
 		MH_Uninitialize();
 	}
 
-	void MinHookWrapper::hookAll()
+	void MinHookWrapper::enableAll()
 	{
 		MH_STATUS status = MH_EnableHook(MH_ALL_HOOKS);
 		if (status != MH_OK)
@@ -30,7 +30,7 @@ namespace th
 		m_enabled = true;
 	}
 
-	void MinHookWrapper::unhookAll()
+	void MinHookWrapper::disableAll()
 	{
 		MH_STATUS status = MH_DisableHook(MH_ALL_HOOKS);
 		if (status != MH_OK)

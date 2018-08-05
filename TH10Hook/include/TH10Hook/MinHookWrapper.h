@@ -8,8 +8,8 @@ namespace th
 		MinHookWrapper();
 		~MinHookWrapper();
 
-		void hookAll();
-		void unhookAll();
+		void enableAll();
+		void disableAll();
 
 	private:
 		bool m_enabled;
