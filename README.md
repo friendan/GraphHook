@@ -2,6 +2,8 @@
 
 为了兼容32位程序注入
 
-DLL注入命令：DllInjector --inject --pid=进程ID --dll="DLL名称"
+## 远程线程注入
 
-DLL卸载命令：DllInjector --uninject --pid=进程ID --dll="DLL名称"
+注入：DllInjector32.exe --remote-thread --inject-dll="TH10Hook32.dll" --process-name="th10.exe"
+
+卸载：DllInjector32.exe --remote-thread --uninject-dll="TH10Hook32.dll" --process-name="th10.exe"
