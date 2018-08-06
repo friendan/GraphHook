@@ -3,7 +3,6 @@
 #include <vector>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/locale.hpp>
 #include <Windows/Process.h>
 #include <Windows/Utils.h>
@@ -12,7 +11,6 @@
 
 namespace blog = boost::log;
 namespace bpo = boost::program_options;
-namespace bfs = boost::filesystem;
 namespace blc = boost::locale::conv;
 
 int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLine, int cmdShow)
@@ -32,7 +30,7 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 			("windows-hook", "消息钩子注入。")
 			("hook-dll", bpo::value<std::string>(), "钩子DLL名。")
 			("hook-func", bpo::value<std::string>(), "挂钩函数名。")
-			("unhook-func", bpo::value<std::string>(), "卸载函数名。")
+			("unhook-func", bpo::value<std::string>(), "脱钩函数名。")
 			("thread-id", bpo::value<DWORD>(), "目标窗口线程ID。")
 			("class-name", bpo::value<std::string>(), "目标窗口类名。")
 			("window-name", bpo::value<std::string>(), "目标窗口名。")
@@ -67,13 +65,10 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 				if (vm.count("inject-dll"))
 				{
 					std::string dllName = vm["inject-dll"].as<std::string>();
-					std::string dllPath = win::Utils::GetModuleDir() + "\\" + dllName;
-					if (!bfs::exists(dllPath))
-						BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str("文件不存在：" + dllPath));
 
 					win::Process::EnableDebugPrivilege();
 					win::Process target(processId);
-					di::DllInjector::Inject(target, dllPath);
+					di::DllInjector::Inject(target, dllName);
 				}
 				else if (vm.count("uninject-dll"))
 				{
@@ -125,10 +120,6 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 			if (!invalidArgs)
 			{
 				std::string dllName = vm["hook-dll"].as<std::string>();
-				std::string dllPath = win::Utils::GetModuleDir() + "\\" + dllName;
-				if (!bfs::exists(dllPath))
-					BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str("文件不存在：" + dllPath));
-
 				std::string hookFuncName = vm["hook-func"].as<std::string>();
 				std::string unhookFuncName = vm["unhook-func"].as<std::string>();
 
@@ -140,7 +131,7 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 					hookCondName = vm["hook-cond"].as<std::string>();
 
 				win::Process::EnableDebugPrivilege();
-				di::DllInjector::HookProc(dllPath, hookFuncName, unhookFuncName, threadId,
+				di::DllInjector::HookProc(dllName, hookFuncName, unhookFuncName, threadId,
 					hookMutexName, hookCondName);
 			}
 		}

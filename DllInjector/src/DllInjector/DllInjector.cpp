@@ -1,6 +1,7 @@
 #include "DllInjector/Common.h"
 #include "DllInjector/DllInjector.h"
 
+#include <boost/filesystem.hpp>
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/named_condition.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -9,11 +10,15 @@
 
 namespace di
 {
+	namespace bfs = boost::filesystem;
 	namespace bi = boost::interprocess;
 	namespace blc = boost::locale::conv;
 
-	void DllInjector::Inject(Process& target, const std::string& dllPath)
+	void DllInjector::Inject(Process& target, const std::string& dllName)
 	{
+		std::string dllPath = win::Utils::GetModuleDir() + "\\" + dllName;
+		if (!bfs::exists(dllPath))
+			BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str("文件不存在：" + dllPath));
 		std::wstring dllPathW = blc::utf_to_utf<wchar_t>(dllPath);
 		size_t dllPathSize = (dllPathW.length() + 1) * sizeof(wchar_t);
 
@@ -31,7 +36,7 @@ namespace di
 		if (!WriteProcessMemory(target.get(), remoteMemory, dllPathW.c_str(), dllPathSize, &written))
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 		if (written != dllPathSize)
-			BOOST_THROW_EXCEPTION(Exception() << err_str("written != dllPathSize"));
+			BOOST_THROW_EXCEPTION(Exception() << err_str("写入DLL路径的长度错误。"));
 
 		HMODULE kernel32Dll = GetModuleHandle(_T("kernel32.dll"));
 		if (kernel32Dll == nullptr)
@@ -83,10 +88,13 @@ namespace di
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
-	void DllInjector::HookProc(const std::string& dllPath, const std::string& hookFuncName,
+	void DllInjector::HookProc(const std::string& dllName, const std::string& hookFuncName,
 		const std::string& unhookFuncName, DWORD threadId, const std::string& hookMutexName,
 		const std::string& hookCondName)
 	{
+		std::string dllPath = win::Utils::GetModuleDir() + "\\" + dllName;
+		if (!bfs::exists(dllPath))
+			BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str("文件不存在：" + dllPath));
 		std::wstring dllPathW = blc::utf_to_utf<wchar_t>(dllPath);
 
 		HMODULE dll = LoadLibrary(dllPathW.c_str());
