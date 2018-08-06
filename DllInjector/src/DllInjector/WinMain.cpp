@@ -5,7 +5,6 @@
 #include <boost/locale.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <Windows/Process.h>
-#include <Windows/Utils.h>
 
 #include "DllInjector/DllInjector.h"
 

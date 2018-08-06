@@ -5,14 +5,17 @@
 
 namespace th
 {
-	class TH10Hook :
-		public Object
+	class TH10Hook
 	{
 	public:
 		TH10Hook();
 		~TH10Hook();
 
+		void hookProc(int code, WPARAM wParam, LPARAM lParam);
+
 	private:
+		void startHook();
+		void stopHook();
 		void hookProc(HANDLE dllMainThread);
 
 		boost::thread m_thread;

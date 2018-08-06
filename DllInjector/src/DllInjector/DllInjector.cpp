@@ -38,24 +38,19 @@ namespace di
 		if (written != dllPathSize)
 			BOOST_THROW_EXCEPTION(Exception() << err_str("写入DLL路径的长度错误。"));
 
-		HMODULE kernel32Dll = GetModuleHandle(_T("kernel32.dll"));
-		if (kernel32Dll == nullptr)
+		HMODULE kernel32 = GetModuleHandle(_T("kernel32.dll"));
+		if (kernel32 == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
-		FARPROC loadLibrary = GetProcAddress(kernel32Dll, "LoadLibraryW");
+		FARPROC loadLibrary = GetProcAddress(kernel32, "LoadLibraryW");
 		if (loadLibrary == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
 		DWORD threadId = 0;
-		HANDLE remoteThread = CreateRemoteThread(target.get(), nullptr, 0,
+		NullHandle remoteThread = CreateRemoteThread(target.get(), nullptr, 0,
 			reinterpret_cast<LPTHREAD_START_ROUTINE>(loadLibrary), remoteMemory, 0, &threadId);
-		if (remoteThread == nullptr)
+		if (!remoteThread)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
-
-		ON_SCOPE_EXIT([remoteThread]()
-		{
-			CloseHandle(remoteThread);
-		});
 
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
@@ -66,24 +61,19 @@ namespace di
 		if (module == nullptr)
 			return;
 
-		HMODULE kernel32Dll = GetModuleHandle(_T("kernel32.dll"));
-		if (kernel32Dll == nullptr)
+		HMODULE kernel32 = GetModuleHandle(_T("kernel32.dll"));
+		if (kernel32 == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
-		FARPROC freeLibrary = GetProcAddress(kernel32Dll, "FreeLibrary");
+		FARPROC freeLibrary = GetProcAddress(kernel32, "FreeLibrary");
 		if (freeLibrary == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
 		DWORD threadId = 0;
-		HANDLE remoteThread = CreateRemoteThread(target.get(), nullptr, 0,
+		NullHandle remoteThread = CreateRemoteThread(target.get(), nullptr, 0,
 			reinterpret_cast<LPTHREAD_START_ROUTINE>(freeLibrary), module, 0, &threadId);
-		if (remoteThread == nullptr)
+		if (!remoteThread)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
-
-		ON_SCOPE_EXIT([remoteThread]()
-		{
-			CloseHandle(remoteThread);
-		});
 
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
