@@ -7,3 +7,7 @@
 注入：DllInjector32.exe --remote-thread --inject-dll="TH10Hook32.dll" --process-name="th10.exe"
 
 卸载：DllInjector32.exe --remote-thread --uninject-dll="TH10Hook32.dll" --process-name="th10.exe"
+
+## 消息钩子注入
+
+DllInjector32.exe --windows-hook --hook-dll="TH10Hook32.dll" --class-name="BASE"
