@@ -57,4 +57,9 @@
       <Filter>源文件\TH10Hook</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="TH10Hook.def">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
 </Project>

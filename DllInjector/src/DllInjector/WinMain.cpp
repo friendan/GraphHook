@@ -1,17 +1,17 @@
 #include "DllInjector/Common.h"
 
 #include <vector>
-#include <boost/log/utility/setup/file.hpp>
 #include <boost/program_options.hpp>
 #include <boost/locale.hpp>
+#include <boost/log/utility/setup/file.hpp>
 #include <Windows/Process.h>
 #include <Windows/Utils.h>
 
 #include "DllInjector/DllInjector.h"
 
-namespace blog = boost::log;
 namespace bpo = boost::program_options;
 namespace blc = boost::locale::conv;
+namespace blog = boost::log;
 
 int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLine, int cmdShow)
 {
@@ -29,13 +29,13 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 			("process-name", bpo::value<std::string>(), "目标进程名。")
 			("windows-hook", "消息钩子注入。")
 			("hook-dll", bpo::value<std::string>(), "钩子DLL名。")
-			("hook-func", bpo::value<std::string>(), "挂钩函数名。")
-			("unhook-func", bpo::value<std::string>(), "脱钩函数名。")
+			("hook-func", bpo::value<std::string>()->default_value("Hook"), "挂钩函数名。")
+			("unhook-func", bpo::value<std::string>()->default_value("Unhook"), "脱钩函数名。")
 			("thread-id", bpo::value<DWORD>(), "目标窗口线程ID。")
 			("class-name", bpo::value<std::string>(), "目标窗口类名。")
 			("window-name", bpo::value<std::string>(), "目标窗口名。")
-			("hook-mutex", bpo::value<std::string>(), "钩子互斥对象名。")
-			("hook-cond", bpo::value<std::string>(), "钩子条件变量名。");
+			("hook-mutex", bpo::value<std::string>()->default_value("HookMutex"), "钩子互斥对象名。")
+			("hook-cond", bpo::value<std::string>()->default_value("HookCond"), "钩子条件变量名。");
 
 		std::vector<std::wstring> args = bpo::split_winmain(cmdLine);
 		bpo::variables_map vm;
@@ -122,13 +122,8 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 				std::string dllName = vm["hook-dll"].as<std::string>();
 				std::string hookFuncName = vm["hook-func"].as<std::string>();
 				std::string unhookFuncName = vm["unhook-func"].as<std::string>();
-
-				std::string hookMutexName = "hookMutex";
-				std::string hookCondName = "hookCond";
-				if (vm.count("hook-mutex"))
-					hookMutexName = vm["hook-mutex"].as<std::string>();
-				if (vm.count("hook-cond"))
-					hookCondName = vm["hook-cond"].as<std::string>();
+				std::string hookMutexName = vm["hook-mutex"].as<std::string>();
+				std::string hookCondName = vm["hook-cond"].as<std::string>();
 
 				win::Process::EnableDebugPrivilege();
 				di::DllInjector::HookProc(dllName, hookFuncName, unhookFuncName, threadId,

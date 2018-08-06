@@ -95,6 +95,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib32-msvc-14.1;..\..\..\cpp\cpp-git\Debug;..\..\minhook-1.3.3\build\VC15\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>cpp.lib;libMinHook.x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>TH10Hook.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)TH10Hook.dll $(OutDir)TH10Hook32.dll</Command>
@@ -113,6 +114,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Debug;..\..\minhook-1.3.3\build\VC15\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>cpp.lib;libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>TH10Hook.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)TH10Hook.dll $(OutDir)TH10Hook64.dll</Command>
@@ -135,6 +137,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib32-msvc-14.1;..\..\..\cpp\cpp-git\Release;..\..\minhook-1.3.3\build\VC15\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>cpp.lib;libMinHook.x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>TH10Hook.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)TH10Hook.dll $(OutDir)TH10Hook32.dll</Command>
@@ -157,6 +160,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_67_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Release;..\..\minhook-1.3.3\build\VC15\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>cpp.lib;libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>TH10Hook.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)TH10Hook.dll $(OutDir)TH10Hook64.dll</Command>
@@ -176,6 +180,9 @@
     <ClCompile Include="src\TH10Hook\MinHookFunc.cpp" />
     <ClCompile Include="src\TH10Hook\MinHookWrapper.cpp" />
     <ClCompile Include="src\TH10Hook\TH10Hook.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TH10Hook.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

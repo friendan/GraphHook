@@ -1,0 +1,5 @@
+LIBRARY TH10Hook
+EXPORTS
+HookProc
+Hook
+Unhook

@@ -106,8 +106,8 @@ namespace di
 			FreeLibrary(dll);
 		});
 
-		typedef bool(*HookFunc_t)(DWORD);
-		typedef void(*UnhookFunc_t)();
+		typedef bool(WINAPI *HookFunc_t)(DWORD);
+		typedef void(WINAPI *UnhookFunc_t)();
 
 		HookFunc_t hookFunc = reinterpret_cast<HookFunc_t>(GetProcAddress(dll, hookFuncName.c_str()));
 		if (hookFunc == nullptr)
