@@ -7,92 +7,112 @@
 #include "TH10Hook/DllMain.h"
 #include "TH10Hook/D3D9Hook.h"
 
-th::TH10Hook g_th10Hook;
-
 #pragma data_seg("Shared")
 HHOOK g_hook = nullptr;
+HWND g_window = nullptr;
+DWORD g_threadId = 0;
 #pragma data_seg()
 #pragma comment(linker, "/SECTION:Shared,RWS")
 
-// 只收到SendMessage的消息，收不到PostMessage的消息，需要窗口子类化
-LRESULT CALLBACK HookProc(int code, WPARAM wParam, LPARAM lParam)
+#define WM_HOOK_D3D (WM_USER + 0x0178)
+#define WM_UNHOOK_D3D (WM_USER + 0x0179)
+
+th::TH10Hook g_th10Hook;
+
+bool WINAPI Hook(HWND window)
 {
-	if (code < 0)
-		return CallNextHookEx(g_hook, code, wParam, lParam);
-
-	g_th10Hook.hookProc(code, wParam, lParam);
-
-	return CallNextHookEx(g_hook, code, wParam, lParam);
-}
-
-bool WINAPI Hook(DWORD threadId)
-{
-	try
-	{
-		if (g_hook != nullptr)
-			BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str("已挂钩。"));
-
-		g_hook = SetWindowsHookEx(WH_CALLWNDPROC, &HookProc, g_dllModule, threadId);
-		if (g_hook == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
-
-		return true;
-	}
-	catch (...)
-	{
-		std::string info = boost::current_exception_diagnostic_information();
-		BOOST_LOG_TRIVIAL(error) << info;
-		return false;
-	}
+	th::TH10Hook& th10Hook = th::TH10Hook::GetInstance();
+	return th10Hook.hook(window);
 }
 
 void WINAPI Unhook()
 {
-	if (g_hook != nullptr)
-	{
-		UnhookWindowsHookEx(g_hook);
-		g_hook = nullptr;
-	}
+	th::TH10Hook& th10Hook = th::TH10Hook::GetInstance();
+	th10Hook.unhook();
 }
 
 namespace th
 {
 	namespace blog = boost::log;
 
-#define WM_START_HOOK (WM_USER + 0x0278)
-#define WM_STOP_HOOK (WM_USER + 0x0279)
-
 	TH10Hook::TH10Hook() :
+		Singleton(this),
 		m_quit(false)
 	{
 		std::string logName = win::Utils::GetModuleDir(g_dllModule) + "\\TH10Hook.log";
 		blog::add_file_log(logName);
-
-		//DWORD threadId = GetCurrentThreadId();
-		//HANDLE dllMainThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadId);
 	}
 
 	TH10Hook::~TH10Hook()
 	{
 	}
 
-	void TH10Hook::hookProc(int code, WPARAM wParam, LPARAM lParam)
+	// 在注入进程运行
+	bool TH10Hook::hook(HWND window)
 	{
+		try
+		{
+			if (g_hook != nullptr)
+				BOOST_THROW_EXCEPTION(Exception() << err_str("共享钩子句柄不为空。"));
+
+			DWORD threadId = GetWindowThreadProcessId(window, nullptr);
+
+			g_hook = SetWindowsHookEx(WH_CALLWNDPROC, &TH10Hook::HookProc, g_dllModule, threadId);
+			if (g_hook == nullptr)
+				THROW_SYSTEM_EXCEPTION(GetLastError());
+
+			g_window = window;
+			g_threadId = threadId;
+
+			return true;
+		}
+		catch (...)
+		{
+			std::string info = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << info;
+			return false;
+		}
+	}
+
+	// 在注入进程运行
+	void TH10Hook::unhook()
+	{
+		if (g_hook != nullptr)
+		{
+			UnhookWindowsHookEx(g_hook);
+			g_hook = nullptr;
+			g_window = nullptr;
+			g_threadId = 0;
+		}
+	}
+
+	// 在目标窗口线程运行
+	LRESULT CALLBACK TH10Hook::HookProc(int code, WPARAM wParam, LPARAM lParam)
+	{
+		TH10Hook& th10Hook = TH10Hook::GetInstance();
+		return th10Hook.hookProc(code, wParam, lParam);
+	}
+
+	// 只能收SendMessage消息，不能收PostMessage消息
+	LRESULT TH10Hook::hookProc(int code, WPARAM wParam, LPARAM lParam)
+	{
+		if (code < 0)
+			return CallNextHookEx(g_hook, code, wParam, lParam);
+
 		LPCWPSTRUCT cwp = reinterpret_cast<LPCWPSTRUCT>(lParam);
 		switch (cwp->message)
 		{
-		case WM_START_HOOK:
-			MessageBox(nullptr, _T("startHook"), _T("TH10Hook"), MB_OK);
+		case WM_HOOK_D3D:
+			MessageBox(nullptr, _T("WM_HOOK_D3D"), _T("TH10Hook"), MB_OK);
 			break;
 
-		case WM_STOP_HOOK:
-			MessageBox(nullptr, _T("stopHook"), _T("TH10Hook"), MB_OK);
-			break;
-
-		case WM_DESTROY:
-			//MessageBox(nullptr, _T("WM_DESTROY"), _T("TH10Hook"), MB_OK);
+		case WM_UNHOOK_D3D:
+		//case WM_DESTROY:
+			MessageBox(nullptr, _T("WM_UNHOOK_D3D"), _T("TH10Hook"), MB_OK);
 			break;
 		}
+
+		return CallNextHookEx(g_hook, code, wParam, lParam);
 	}
 
 	void TH10Hook::startHook()
@@ -115,9 +135,6 @@ namespace th
 
 	void TH10Hook::hookProc(HANDLE dllMainThread)
 	{
-		//WaitForSingleObject(dllMainThread, INFINITE);
-		//CloseHandle(dllMainThread);
-
 		try
 		{
 			D3D9Hook d3d9Hook;
