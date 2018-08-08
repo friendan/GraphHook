@@ -2,7 +2,9 @@
 
 #include <d3d9.h>
 #include <atlbase.h>
+#include <memory>
 #include <cpp/Singleton.h>
+#include <Windows/Event.h>
 
 #include "TH10Hook/MinHookWrapper.h"
 #include "TH10Hook/MinHookFunc.h"
@@ -49,5 +51,7 @@ namespace th
 		BeginScene_t m_beginSceneTarget, m_beginSceneOrig;
 		EndScene_t m_endSceneTarget, m_endSceneOrig;
 		Clear_t m_clearTarget, m_clearOrig;
+
+		win::Event m_presentEvent;
 	};
 }

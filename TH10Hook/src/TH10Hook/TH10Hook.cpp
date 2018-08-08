@@ -1,11 +1,9 @@
 #include "TH10Hook/Common.h"
 #include "TH10Hook/TH10Hook.h"
 
-#include <boost/bind.hpp>
 #include <boost/log/utility/setup/file.hpp>
 
 #include "TH10Hook/DllMain.h"
-#include "TH10Hook/D3D9Hook.h"
 
 #pragma data_seg("Shared")
 HHOOK g_hook = nullptr;
@@ -36,11 +34,8 @@ namespace th
 	namespace blog = boost::log;
 
 	TH10Hook::TH10Hook() :
-		Singleton(this),
-		m_quit(false)
+		Singleton(this)
 	{
-		std::string logName = win::Utils::GetModuleDir(g_dllModule) + "\\TH10Hook.log";
-		blog::add_file_log(logName);
 	}
 
 	TH10Hook::~TH10Hook()
@@ -50,6 +45,9 @@ namespace th
 	// 在注入进程运行
 	bool TH10Hook::hook(HWND window)
 	{
+		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\TH10Hook.log";
+		blog::add_file_log(logName);
+
 		try
 		{
 			if (g_hook != nullptr)
@@ -103,50 +101,49 @@ namespace th
 		switch (cwp->message)
 		{
 		case WM_HOOK_D3D:
-			MessageBox(nullptr, _T("WM_HOOK_D3D"), _T("TH10Hook"), MB_OK);
+			hookD3D();
 			break;
 
 		case WM_UNHOOK_D3D:
-		//case WM_DESTROY:
-			MessageBox(nullptr, _T("WM_UNHOOK_D3D"), _T("TH10Hook"), MB_OK);
+			unhookD3D();
+			break;
+
+		case WM_DESTROY:
 			break;
 		}
 
 		return CallNextHookEx(g_hook, code, wParam, lParam);
 	}
 
-	void TH10Hook::startHook()
+	void TH10Hook::hookD3D()
 	{
-		m_thread = boost::thread(boost::bind(&TH10Hook::hookProc, this,
-			boost::placeholders::_1), nullptr);
-	}
+		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\TH10Hook1.log";
+		blog::add_file_log(logName);
 
-	void TH10Hook::stopHook()
-	{
+		try
 		{
-			boost::lock_guard<boost::mutex> lock(m_mutex);
-			m_quit = true;
+			if (m_d3d9Hook == nullptr)
+			{
+				m_d3d9Hook = std::make_shared<D3D9Hook>();
+				m_d3d9Hook->hook();
+			}
 		}
-		m_cv.notify_one();
-
-		if (m_thread.joinable())
-			m_thread.join();
+		catch (...)
+		{
+			std::string info = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << info;
+		}
 	}
 
-	void TH10Hook::hookProc(HANDLE dllMainThread)
+	void TH10Hook::unhookD3D()
 	{
 		try
 		{
-			D3D9Hook d3d9Hook;
-			d3d9Hook.hook();
-
+			if (m_d3d9Hook != nullptr)
 			{
-				boost::unique_lock<boost::mutex> lock(m_mutex);
-				while (!m_quit)
-					m_cv.wait(lock);
+				m_d3d9Hook->unhook();
+				m_d3d9Hook = nullptr;
 			}
-
-			d3d9Hook.unhook();
 		}
 		catch (...)
 		{

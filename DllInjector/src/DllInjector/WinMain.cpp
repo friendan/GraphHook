@@ -20,14 +20,14 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 	{
 		bpo::options_description desc("Allowed options");
 		desc.add_options()
-			("remote-thread", "远程线程注入。")
-			("inject-dll", bpo::value<std::string>(), "注入DLL名。")
-			("uninject-dll", bpo::value<std::string>(), "卸载DLL名。")
-			("process-name", bpo::value<std::string>(), "目标进程名。")
-			("windows-hook", "消息钩子注入。")
-			("hook-dll", bpo::value<std::string>(), "钩子DLL名。")
-			("window-name", bpo::value<std::string>(), "目标窗口名。")
-			("class-name", bpo::value<std::string>(), "目标窗口类名。");
+			("remote-thread", u8"远程线程注入。")
+			("inject-dll", bpo::value<std::string>(), u8"注入DLL名。")
+			("uninject-dll", bpo::value<std::string>(), u8"卸载DLL名。")
+			("process-name", bpo::value<std::string>(), u8"目标进程名。")
+			("windows-hook", u8"消息钩子注入。")
+			("hook-dll", bpo::value<std::string>(), u8"钩子DLL名。")
+			("window-name", bpo::value<std::string>(), u8"目标窗口名。")
+			("class-name", bpo::value<std::string>(), u8"目标窗口类名。");
 
 		std::vector<std::wstring> args = bpo::split_winmain(cmdLine);
 		bpo::variables_map vm;
@@ -87,7 +87,7 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 		}
 
 		if (invalidArgs)
-			BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str("错误的参数。"));
+			BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str(u8"错误的参数。"));
 
 		return 0;
 	}

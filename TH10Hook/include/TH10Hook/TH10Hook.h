@@ -1,7 +1,9 @@
 #pragma once
 
-#include <boost/thread.hpp>
+#include <memory>
 #include <cpp/Singleton.h>
+
+#include "TH10Hook/D3D9Hook.h"
 
 namespace th
 {
@@ -18,14 +20,9 @@ namespace th
 	private:
 		static LRESULT CALLBACK HookProc(int code, WPARAM wParam, LPARAM lParam);
 		LRESULT hookProc(int code, WPARAM wParam, LPARAM lParam);
+		void hookD3D();
+		void unhookD3D();
 
-		void startHook();
-		void stopHook();
-		void hookProc(HANDLE dllMainThread);
-
-		boost::thread m_thread;
-		boost::mutex m_mutex;
-		boost::condition_variable m_cv;
-		bool m_quit;
+		std::shared_ptr<D3D9Hook> m_d3d9Hook;
 	};
 }
