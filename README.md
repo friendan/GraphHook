@@ -11,3 +11,7 @@
 ## 消息钩子注入
 
 DllInjector32.exe --windows-hook --hook-dll="TH10Hook32.dll" --class-name="BASE"
+
+## 问题
+
+DLL注入时，风神录还是会小几率炸掉，原因未明。
