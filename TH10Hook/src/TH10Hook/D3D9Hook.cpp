@@ -149,7 +149,8 @@ namespace th
 	HRESULT D3D9Hook::presentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
 		HWND destWindowOverride, CONST RGNDATA* dirtyRegion)
 	{
-		m_presentEvent.set();
+		//m_presentEvent.set();
+		SetEvent(m_presentEvent);
 
 		HRESULT hr = m_presentOrig(d3dDevice9, sourceRect, destRect, destWindowOverride, dirtyRegion);
 
