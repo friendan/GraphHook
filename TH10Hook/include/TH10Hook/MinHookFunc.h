@@ -14,11 +14,7 @@ namespace th
 		MinHookFunc& operator =(MinHookFunc&& other);
 		void swap(MinHookFunc& other);
 
-		void enable();
-		void disable();
-
 	private:
 		LPVOID m_target;
-		bool m_enabled;
 	};
 }

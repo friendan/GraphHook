@@ -5,45 +5,13 @@
 
 namespace th
 {
-	HRESULT STDMETHODCALLTYPE ResetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters)
-	{
-		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
-		return d3d9Hook.resetHook(d3dDevice9, presentationParameters);
-	}
-
-	HRESULT STDMETHODCALLTYPE PresentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
-		HWND destWindowOverride, CONST RGNDATA* dirtyRegion)
-	{
-		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
-		return d3d9Hook.presentHook(d3dDevice9, sourceRect, destRect, destWindowOverride, dirtyRegion);
-	}
-
-	HRESULT STDMETHODCALLTYPE BeginSceneHook(IDirect3DDevice9* d3dDevice9)
-	{
-		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
-		return d3d9Hook.beginSceneHook(d3dDevice9);
-	}
-
-	HRESULT STDMETHODCALLTYPE EndSceneHook(IDirect3DDevice9* d3dDevice9)
-	{
-		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
-		return d3d9Hook.endSceneHook(d3dDevice9);
-	}
-
-	HRESULT STDMETHODCALLTYPE ClearHook(IDirect3DDevice9* d3dDevice9, DWORD count, CONST D3DRECT* rects, DWORD flags,
-		D3DCOLOR color, float z, DWORD stencil)
-	{
-		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
-		return d3d9Hook.clearHook(d3dDevice9, count, rects, flags, color, z, stencil);
-	}
-
 	D3D9Hook::D3D9Hook() :
 		Singleton(this),
-		m_resetTarget(nullptr), m_resetOrig(nullptr),
-		m_presentTarget(nullptr), m_presentOrig(nullptr),
-		m_beginSceneTarget(nullptr), m_beginSceneOrig(nullptr),
-		m_endSceneTarget(nullptr), m_endSceneOrig(nullptr),
-		m_clearTarget(nullptr), m_clearOrig(nullptr)
+		m_resetOrig(nullptr),
+		m_presentOrig(nullptr),
+		m_beginSceneOrig(nullptr),
+		m_endSceneOrig(nullptr),
+		m_clearOrig(nullptr)
 	{
 	}
 
@@ -115,29 +83,59 @@ namespace th
 
 	void D3D9Hook::hook()
 	{
+		m_presentEvent = win::Event::Open("D3DPresentEvent");
+
 		intptr_t* vtable = getVTable();
 		//m_resetTarget = reinterpret_cast<Reset_t>(vtable[16]);
-		m_presentTarget = reinterpret_cast<Present_t>(vtable[17]);
+		//m_presentTarget = reinterpret_cast<Present_t>(vtable[17]);
 		//m_beginSceneTarget = reinterpret_cast<BeginScene_t>(vtable[41]);
 		//m_endSceneTarget = reinterpret_cast<EndScene_t>(vtable[42]);
 		//m_clearTarget = reinterpret_cast<Clear_t>(vtable[43]);
 
 		//MH_CreateHook(m_resetTarget, &ResetHook, reinterpret_cast<LPVOID*>(&m_resetOrig));
-		m_presentFunc = MinHookFunc(m_presentTarget, &PresentHook, reinterpret_cast<LPVOID*>(&m_presentOrig));
+		m_presentFunc = MinHookFunc(reinterpret_cast<LPVOID>(vtable[17]), &D3D9Hook::PresentHook, reinterpret_cast<LPVOID*>(&m_presentOrig));
 		//MH_CreateHook(m_beginSceneTarget, &BeginSceneHook, reinterpret_cast<LPVOID*>(&m_beginSceneOrig));
 		//MH_CreateHook(m_endSceneTarget, &EndSceneHook, reinterpret_cast<LPVOID*>(&m_endSceneOrig));
 		//MH_CreateHook(m_clearTarget, &ClearHook, reinterpret_cast<LPVOID*>(&m_clearOrig));
-
-		m_presentEvent = win::Event::Open("D3DPresentEvent");
-
-		m_presentFunc.enable();
 	}
 
 	void D3D9Hook::unhook()
 	{
-		m_presentFunc.disable();
+		m_presentFunc = MinHookFunc();
 
 		m_presentEvent = win::Event();
+	}
+
+	HRESULT STDMETHODCALLTYPE D3D9Hook::ResetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters)
+	{
+		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
+		return d3d9Hook.resetHook(d3dDevice9, presentationParameters);
+	}
+
+	HRESULT STDMETHODCALLTYPE D3D9Hook::PresentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
+		HWND destWindowOverride, CONST RGNDATA* dirtyRegion)
+	{
+		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
+		return d3d9Hook.presentHook(d3dDevice9, sourceRect, destRect, destWindowOverride, dirtyRegion);
+	}
+
+	HRESULT STDMETHODCALLTYPE D3D9Hook::BeginSceneHook(IDirect3DDevice9* d3dDevice9)
+	{
+		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
+		return d3d9Hook.beginSceneHook(d3dDevice9);
+	}
+
+	HRESULT STDMETHODCALLTYPE D3D9Hook::EndSceneHook(IDirect3DDevice9* d3dDevice9)
+	{
+		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
+		return d3d9Hook.endSceneHook(d3dDevice9);
+	}
+
+	HRESULT STDMETHODCALLTYPE D3D9Hook::ClearHook(IDirect3DDevice9* d3dDevice9, DWORD count, CONST D3DRECT* rects, DWORD flags,
+		D3DCOLOR color, float z, DWORD stencil)
+	{
+		D3D9Hook& d3d9Hook = D3D9Hook::GetInstance();
+		return d3d9Hook.clearHook(d3dDevice9, count, rects, flags, color, z, stencil);
 	}
 
 	HRESULT D3D9Hook::resetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters)

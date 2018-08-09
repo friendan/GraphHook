@@ -7,8 +7,8 @@
 
 #pragma data_seg("Shared")
 HHOOK g_hook = nullptr;
-HWND g_window = nullptr;
-DWORD g_threadId = 0;
+//HWND g_window = nullptr;
+//DWORD g_threadId = 0;
 #pragma data_seg()
 #pragma comment(linker, "/SECTION:Shared,RWS")
 
@@ -59,8 +59,8 @@ namespace th
 			if (g_hook == nullptr)
 				THROW_SYSTEM_EXCEPTION(GetLastError());
 
-			g_window = window;
-			g_threadId = threadId;
+			//g_window = window;
+			//g_threadId = threadId;
 
 			return true;
 		}
@@ -79,8 +79,8 @@ namespace th
 		{
 			UnhookWindowsHookEx(g_hook);
 			g_hook = nullptr;
-			g_window = nullptr;
-			g_threadId = 0;
+			//g_window = nullptr;
+			//g_threadId = 0;
 		}
 	}
 

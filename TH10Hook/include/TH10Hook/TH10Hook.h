@@ -20,6 +20,7 @@ namespace th
 	private:
 		static LRESULT CALLBACK HookProc(int code, WPARAM wParam, LPARAM lParam);
 		LRESULT hookProc(int code, WPARAM wParam, LPARAM lParam);
+
 		void hookD3D();
 		void unhookD3D();
 

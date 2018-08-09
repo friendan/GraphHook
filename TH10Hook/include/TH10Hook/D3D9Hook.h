@@ -2,7 +2,6 @@
 
 #include <d3d9.h>
 #include <atlbase.h>
-#include <memory>
 #include <cpp/Singleton.h>
 #include <Windows/Event.h>
 
@@ -32,6 +31,15 @@ namespace th
 		void hook();
 		void unhook();
 
+	private:
+		static HRESULT STDMETHODCALLTYPE ResetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters);
+		static HRESULT STDMETHODCALLTYPE PresentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
+			HWND destWindowOverride, CONST RGNDATA* dirtyRegion);
+		static HRESULT STDMETHODCALLTYPE BeginSceneHook(IDirect3DDevice9* d3dDevice9);
+		static HRESULT STDMETHODCALLTYPE EndSceneHook(IDirect3DDevice9* d3dDevice9);
+		static HRESULT STDMETHODCALLTYPE ClearHook(IDirect3DDevice9* d3dDevice9, DWORD count, CONST D3DRECT* rects, DWORD flags,
+			D3DCOLOR color, float z, DWORD stencil);
+
 		HRESULT resetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters);
 		HRESULT presentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
 			HWND destWindowOverride, CONST RGNDATA* dirtyRegion);
@@ -40,17 +48,16 @@ namespace th
 		HRESULT clearHook(IDirect3DDevice9* d3dDevice9, DWORD count, CONST D3DRECT* rects, DWORD flags,
 			D3DCOLOR color, float z, DWORD stencil);
 
-	private:
 		intptr_t* getVTable();
 
 		MinHookWrapper m_minHook;
 		MinHookFunc m_presentFunc;
 
-		Reset_t m_resetTarget, m_resetOrig;
-		Present_t m_presentTarget, m_presentOrig;
-		BeginScene_t m_beginSceneTarget, m_beginSceneOrig;
-		EndScene_t m_endSceneTarget, m_endSceneOrig;
-		Clear_t m_clearTarget, m_clearOrig;
+		Reset_t m_resetOrig;
+		Present_t m_presentOrig;
+		BeginScene_t m_beginSceneOrig;
+		EndScene_t m_endSceneOrig;
+		Clear_t m_clearOrig;
 
 		win::Event m_presentEvent;
 	};

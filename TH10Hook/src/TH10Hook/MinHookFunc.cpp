@@ -6,35 +6,38 @@
 namespace th
 {
 	MinHookFunc::MinHookFunc() :
-		m_target(nullptr),
-		m_enabled(false)
+		m_target(nullptr)
 	{
 	}
 
 	MinHookFunc::MinHookFunc(LPVOID target, LPVOID detour, LPVOID* original) :
-		m_target(target),
-		m_enabled(false)
+		m_target(target)
 	{
-		MH_STATUS status = MH_CreateHook(target, detour, original);
+		MH_STATUS status;
+
+		status = MH_CreateHook(target, detour, original);
 		if (status != MH_OK)
 			BOOST_THROW_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
+
+		status = MH_EnableHook(target);
+		if (status != MH_OK)
+		{
+			MH_RemoveHook(target);
+			BOOST_THROW_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
+		}
 	}
 
 	MinHookFunc::MinHookFunc(MinHookFunc&& other) :
-		m_target(other.m_target),
-		m_enabled(other.m_enabled)
+		m_target(other.m_target)
 	{
 		other.m_target = nullptr;
-		other.m_enabled = false;
 	}
 
 	MinHookFunc::~MinHookFunc()
 	{
 		if (m_target != nullptr)
 		{
-			if (m_enabled)
-				MH_DisableHook(m_target);
-
+			MH_DisableHook(m_target);
 			MH_RemoveHook(m_target);
 		}
 	}
@@ -48,30 +51,5 @@ namespace th
 	void MinHookFunc::swap(MinHookFunc& other)
 	{
 		std::swap(m_target, other.m_target);
-		std::swap(m_enabled, other.m_enabled);
-	}
-
-	void MinHookFunc::enable()
-	{
-		if (m_target == nullptr)
-			BOOST_THROW_EXCEPTION(Exception() << err_str("m_target == nullptr"));
-
-		MH_STATUS status = MH_EnableHook(m_target);
-		if (status != MH_OK)
-			BOOST_THROW_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
-
-		m_enabled = true;
-	}
-
-	void MinHookFunc::disable()
-	{
-		if (m_target == nullptr)
-			BOOST_THROW_EXCEPTION(Exception() << err_str("m_target == nullptr"));
-
-		MH_STATUS status = MH_DisableHook(m_target);
-		if (status != MH_OK)
-			BOOST_THROW_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
-
-		m_enabled = false;
 	}
 }
