@@ -7,8 +7,8 @@
 
 #pragma data_seg("Shared")
 HHOOK g_hook = nullptr;
-//HWND g_window = nullptr;
-//DWORD g_threadId = 0;
+HWND g_window = nullptr;
+DWORD g_threadId = 0;
 #pragma data_seg()
 #pragma comment(linker, "/SECTION:Shared,RWS")
 
@@ -59,8 +59,8 @@ namespace th
 			if (g_hook == nullptr)
 				THROW_SYSTEM_EXCEPTION(GetLastError());
 
-			//g_window = window;
-			//g_threadId = threadId;
+			g_window = window;
+			g_threadId = threadId;
 
 			return true;
 		}
@@ -79,8 +79,8 @@ namespace th
 		{
 			UnhookWindowsHookEx(g_hook);
 			g_hook = nullptr;
-			//g_window = nullptr;
-			//g_threadId = 0;
+			g_window = nullptr;
+			g_threadId = 0;
 		}
 	}
 
@@ -98,18 +98,23 @@ namespace th
 			return CallNextHookEx(g_hook, code, wParam, lParam);
 
 		LPCWPSTRUCT cwp = reinterpret_cast<LPCWPSTRUCT>(lParam);
-		switch (cwp->message)
+		if (cwp != nullptr)
 		{
-		case WM_HOOK_D3D:
-			hookD3D();
-			break;
+			switch (cwp->message)
+			{
+			case WM_HOOK_D3D:
+				hookD3D();
+				break;
 
-		case WM_UNHOOK_D3D:
-			unhookD3D();
-			break;
+			case WM_UNHOOK_D3D:
+				unhookD3D();
+				break;
 
-		case WM_DESTROY:
-			break;
+			case WM_DESTROY:
+				//if (cwp->hwnd == g_window)
+				//	unhookD3D();
+				break;
+			}
 		}
 
 		return CallNextHookEx(g_hook, code, wParam, lParam);
