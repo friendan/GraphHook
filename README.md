@@ -4,14 +4,14 @@
 
 ## 远程线程注入
 
-注入：DllInjector32.exe --remote-thread --inject-dll="TH10Hook32.dll" --process-name="th10.exe"
+注入：DllInjector32.exe --remote-thread --process-name="th10.exe" --inject-dll="TH10Hook32.dll"
 
-卸载：DllInjector32.exe --remote-thread --uninject-dll="TH10Hook32.dll" --process-name="th10.exe"
+卸载：DllInjector32.exe --remote-thread --process-name="th10.exe" --uninject-dll="TH10Hook32.dll"
 
 ## 消息钩子注入
 
-DllInjector32.exe --windows-hook --hook-dll="TH10Hook32.dll" --class-name="BASE"
+DllInjector32.exe --windows-hook --class-name="BASE" --hook-dll="TH10Hook32.dll"
 
 ## 问题
 
-DLL注入时，风神录会小几率炸掉，原因未明。
+风神录载入时注入会小几率炸掉，原因未明。
