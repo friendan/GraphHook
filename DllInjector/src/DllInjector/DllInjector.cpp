@@ -11,7 +11,7 @@ namespace di
 	namespace bfs = boost::filesystem;
 	namespace blc = boost::locale::conv;
 
-	void DllInjector::Inject(const std::string& dllName, Process& target)
+	void DllInjector::Inject(Process& target, const std::string& dllName)
 	{
 		std::string dllPath = Utils::GetModuleDir() + "\\" + dllName;
 		if (!bfs::exists(dllPath))
@@ -48,7 +48,7 @@ namespace di
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
-	void DllInjector::Uninject(const std::string& dllName, Process& target)
+	void DllInjector::Uninject(Process& target, const std::string& dllName)
 	{
 		HMODULE module = target.findModuleByName(dllName);
 		if (module == nullptr)
@@ -67,7 +67,9 @@ namespace di
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
-	void DllInjector::HookProc(const std::string& dllName, Window& target)
+	void DllInjector::HookProc(DWORD threadId, const std::string& dllName,
+		std::string hookFuncName, std::string unhookFuncName,
+		std::string hookEventName, std::string unhookEventName)
 	{
 		std::string dllPath = Utils::GetModuleDir() + "\\" + dllName;
 		if (!bfs::exists(dllPath))
@@ -83,18 +85,18 @@ namespace di
 			FreeLibrary(dll);
 		});
 
-		typedef bool(WINAPI *HookFunc_t)(HWND);
+		typedef bool(WINAPI *HookFunc_t)(DWORD);
 		typedef void(WINAPI *UnhookFunc_t)();
 
-		HookFunc_t hookFunc = reinterpret_cast<HookFunc_t>(GetProcAddress(dll, "Hook"));
+		HookFunc_t hookFunc = reinterpret_cast<HookFunc_t>(GetProcAddress(dll, hookFuncName.c_str()));
 		if (hookFunc == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
-		UnhookFunc_t unhookFunc = reinterpret_cast<UnhookFunc_t>(GetProcAddress(dll, "Unhook"));
+		UnhookFunc_t unhookFunc = reinterpret_cast<UnhookFunc_t>(GetProcAddress(dll, unhookFuncName.c_str()));
 		if (unhookFunc == nullptr)
 			THROW_SYSTEM_EXCEPTION(GetLastError());
 
-		if (!hookFunc(target))
+		if (!hookFunc(threadId))
 			BOOST_THROW_EXCEPTION(Exception() << err_str(u8"挂钩失败，详细信息请查看钩子DLL的log文件。"));
 
 		ON_SCOPE_EXIT([unhookFunc]()
@@ -103,11 +105,11 @@ namespace di
 		});
 
 		{
-			win::Event hookEvent = win::Event::Open("HookEvent");
+			win::Event hookEvent = win::Event::Open(hookEventName);
 			hookEvent.set();
 		}
 		{
-			win::Event unhookEvent = win::Event::Create("UnhookEvent");
+			win::Event unhookEvent = win::Event::Create(unhookEventName);
 			unhookEvent.wait();
 		}
 	}

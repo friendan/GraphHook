@@ -2,13 +2,14 @@
 #include "TH10Hook/TH10Hook.h"
 
 #include <boost/log/utility/setup/file.hpp>
+#include <Windows/Window.h>
 
 #include "TH10Hook/DllMain.h"
 
 #pragma data_seg("Shared")
 HHOOK g_hook = nullptr;
-HWND g_window = nullptr;
 DWORD g_threadId = 0;
+HWND g_window = nullptr;
 #pragma data_seg()
 #pragma comment(linker, "/SECTION:Shared,RWS")
 
@@ -17,10 +18,10 @@ DWORD g_threadId = 0;
 
 th::TH10Hook g_th10Hook;
 
-bool WINAPI Hook(HWND window)
+bool WINAPI Hook(DWORD threadId)
 {
 	th::TH10Hook& th10Hook = th::TH10Hook::GetInstance();
-	return th10Hook.hook(window);
+	return th10Hook.hook(threadId);
 }
 
 void WINAPI Unhook()
@@ -43,7 +44,7 @@ namespace th
 	}
 
 	// 在注入进程运行
-	bool TH10Hook::hook(HWND window)
+	bool TH10Hook::hook(DWORD threadId)
 	{
 		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\TH10Hook.log";
 		blog::add_file_log(logName);
@@ -53,14 +54,12 @@ namespace th
 			if (g_hook != nullptr)
 				BOOST_THROW_EXCEPTION(Exception() << err_str("共享钩子句柄不为空。"));
 
-			DWORD threadId = GetWindowThreadProcessId(window, nullptr);
-
 			g_hook = SetWindowsHookEx(WH_CALLWNDPROC, &TH10Hook::HookProc, g_dllModule, threadId);
 			if (g_hook == nullptr)
 				THROW_SYSTEM_EXCEPTION(GetLastError());
 
-			g_window = window;
 			g_threadId = threadId;
+			g_window = Window::FindByThreadId(threadId);
 
 			return true;
 		}
@@ -79,8 +78,8 @@ namespace th
 		{
 			UnhookWindowsHookEx(g_hook);
 			g_hook = nullptr;
-			g_window = nullptr;
 			g_threadId = 0;
+			g_window = nullptr;
 		}
 	}
 

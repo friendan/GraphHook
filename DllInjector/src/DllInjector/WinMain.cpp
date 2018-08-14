@@ -21,13 +21,19 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 		bpo::options_description desc("Allowed options");
 		desc.add_options()
 			("remote-thread", u8"远程线程注入。")
+			("process-id", bpo::value<DWORD>(), u8"目标进程ID。")
+			("process-name", bpo::value<std::string>(), u8"目标进程名。")
 			("inject-dll", bpo::value<std::string>(), u8"注入DLL名。")
 			("uninject-dll", bpo::value<std::string>(), u8"卸载DLL名。")
-			("process-name", bpo::value<std::string>(), u8"目标进程名。")
 			("windows-hook", u8"消息钩子注入。")
-			("hook-dll", bpo::value<std::string>(), u8"钩子DLL名。")
+			("thread-id", bpo::value<DWORD>(), u8"目标线程ID。")
 			("window-name", bpo::value<std::string>(), u8"目标窗口名。")
-			("class-name", bpo::value<std::string>(), u8"目标窗口类名。");
+			("class-name", bpo::value<std::string>(), u8"目标窗口类名。")
+			("hook-dll", bpo::value<std::string>(), u8"钩子DLL名。")
+			("hook-func", bpo::value<std::string>()->default_value("Hook"), u8"挂钩函数名。")
+			("unhook-func", bpo::value<std::string>()->default_value("Unhook"), u8"脱钩函数名。")
+			("hook-event", bpo::value<std::string>()->default_value("HookEvent"), u8"挂钩事件名。")
+			("unhook-event", bpo::value<std::string>()->default_value("UnhookEvent"), u8"脱钩事件名。");
 
 		std::vector<std::wstring> args = bpo::split_winmain(cmdLine);
 		bpo::variables_map vm;
@@ -36,39 +42,59 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 		bool invalidArgs = false;
 		if (vm.count("remote-thread"))
 		{
-			if (vm.count("inject-dll"))
+			win::Process target;
+			if (vm.count("process-id"))
 			{
-				std::string dllName = vm["inject-dll"].as<std::string>();
-				std::string processName = vm["process-name"].as<std::string>();
-				win::Process::EnableDebugPrivilege();
-				win::Process target = win::Process::FindByName(processName);
-				di::DllInjector::Inject(dllName, target);
+				DWORD processId = vm["process-id"].as<DWORD>();
+				target = win::Process(processId);
 			}
-			else if (vm.count("uninject-dll"))
+			else if (vm.count("process-name"))
 			{
-				std::string dllName = vm["uninject-dll"].as<std::string>();
 				std::string processName = vm["process-name"].as<std::string>();
-				win::Process::EnableDebugPrivilege();
-				win::Process target = win::Process::FindByName(processName);
-				di::DllInjector::Uninject(dllName, target);
+				target = win::Process::FindByName(processName);
 			}
 			else
 			{
 				invalidArgs = true;
 			}
+			if (!invalidArgs)
+			{
+				if (vm.count("inject-dll"))
+				{
+					std::string dllName = vm["inject-dll"].as<std::string>();
+					win::Process::EnableDebugPrivilege();
+					di::DllInjector::Inject(target, dllName);
+				}
+				else if (vm.count("uninject-dll"))
+				{
+					std::string dllName = vm["uninject-dll"].as<std::string>();
+					win::Process::EnableDebugPrivilege();
+					di::DllInjector::Uninject(target, dllName);
+				}
+				else
+				{
+					invalidArgs = true;
+				}
+			}
 		}
 		else if (vm.count("windows-hook"))
 		{
-			win::Window target;
-			if (vm.count("window-name"))
+			DWORD threadId = 0;
+			if (vm.count("thread-id"))
+			{
+				threadId = vm["thread-id"].as<DWORD>();
+			}
+			else if (vm.count("window-name"))
 			{
 				std::string windowName = vm["window-name"].as<std::string>();
-				target = win::Window::FindByName(windowName);
+				win::Window window = win::Window::FindByName(windowName);
+				threadId = window.getThreadId();
 			}
 			else if (vm.count("class-name"))
 			{
 				std::string className = vm["class-name"].as<std::string>();
-				target = win::Window::FindByClassName(className);
+				win::Window window = win::Window::FindByClassName(className);
+				threadId = window.getThreadId();
 			}
 			else
 			{
@@ -77,8 +103,13 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 			if (!invalidArgs)
 			{
 				std::string dllName = vm["hook-dll"].as<std::string>();
+				std::string hookFuncName = vm["hook-func"].as<std::string>();
+				std::string unhookFuncName = vm["unhook-func"].as<std::string>();
+				std::string hookEventName = vm["hook-event"].as<std::string>();
+				std::string unhookEventName = vm["unhook-event"].as<std::string>();
 				win::Process::EnableDebugPrivilege();
-				di::DllInjector::HookProc(dllName, target);
+				di::DllInjector::HookProc(threadId, dllName, hookFuncName, unhookFuncName,
+					hookEventName, unhookEventName);
 			}
 		}
 		else

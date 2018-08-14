@@ -14,7 +14,7 @@ namespace th
 		TH10Hook();
 		~TH10Hook();
 
-		bool hook(HWND window);
+		bool hook(DWORD threadId);
 		void unhook();
 
 	private:
