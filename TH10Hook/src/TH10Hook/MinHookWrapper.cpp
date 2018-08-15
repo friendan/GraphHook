@@ -9,7 +9,7 @@ namespace th
 	{
 		MH_STATUS status = MH_Initialize();
 		if (status != MH_OK)
-			BOOST_THROW_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
+			THROW_CPP_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
 	}
 
 	MinHookWrapper::~MinHookWrapper()

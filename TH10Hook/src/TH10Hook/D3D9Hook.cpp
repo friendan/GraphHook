@@ -28,7 +28,7 @@ namespace th
 		wcex.lpfnWndProc = &DefWindowProc;
 		wcex.lpszClassName = _T("D3D9HookClass");
 		if (RegisterClassEx(&wcex) == 0)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		ON_SCOPE_EXIT([&wcex]()
 		{
@@ -38,7 +38,7 @@ namespace th
 		HWND window = CreateWindowEx(0, wcex.lpszClassName, _T("D3D9Hook"), WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, wcex.hInstance, nullptr);
 		if (window == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		ON_SCOPE_EXIT([window]()
 		{
@@ -47,18 +47,18 @@ namespace th
 
 		HMODULE d3d9Dll = GetModuleHandle(_T("d3d9.dll"));
 		if (d3d9Dll == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		Direct3DCreate9_t direct3DCreate9 = reinterpret_cast<Direct3DCreate9_t>(
 			GetProcAddress(d3d9Dll, "Direct3DCreate9"));
 		if (direct3DCreate9 == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		HRESULT hr;
 
 		CComPtr<IDirect3D9> d3d9 = direct3DCreate9(D3D_SDK_VERSION);
 		if (d3d9 == nullptr)
-			BOOST_THROW_EXCEPTION(Exception() << err_str("Direct3DCreate9() failed."));
+			THROW_CPP_EXCEPTION(Exception() << err_str("Direct3DCreate9() failed."));
 
 		D3DDISPLAYMODE d3ddm = {};
 		hr = d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm);

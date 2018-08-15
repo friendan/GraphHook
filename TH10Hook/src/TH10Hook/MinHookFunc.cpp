@@ -17,13 +17,13 @@ namespace th
 
 		status = MH_CreateHook(target, detour, original);
 		if (status != MH_OK)
-			BOOST_THROW_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
+			THROW_CPP_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
 
 		status = MH_EnableHook(target);
 		if (status != MH_OK)
 		{
 			MH_RemoveHook(target);
-			BOOST_THROW_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
+			THROW_CPP_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
 		}
 	}
 

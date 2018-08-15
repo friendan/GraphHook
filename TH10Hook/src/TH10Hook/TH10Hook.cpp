@@ -52,11 +52,11 @@ namespace th
 		try
 		{
 			if (g_hook != nullptr)
-				BOOST_THROW_EXCEPTION(Exception() << err_str("共享钩子句柄不为空。"));
+				THROW_CPP_EXCEPTION(Exception() << err_str("共享钩子句柄不为空。"));
 
 			g_hook = SetWindowsHookEx(WH_CALLWNDPROC, &TH10Hook::HookProc, g_dllModule, threadId);
 			if (g_hook == nullptr)
-				THROW_SYSTEM_EXCEPTION(GetLastError());
+				THROW_WINDOWS_EXCEPTION(GetLastError());
 
 			g_threadId = threadId;
 			g_window = Window::FindByThreadId(threadId);

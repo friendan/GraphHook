@@ -1,6 +1,7 @@
 #include "DllInjector/Common.h"
 
 #include <vector>
+#include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <Windows/Process.h>
@@ -20,6 +21,7 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 	{
 		bpo::options_description desc("Allowed options");
 		desc.add_options()
+			("help", "produce help message")
 			("remote-thread", u8"远程线程注入。")
 			("process-id", bpo::value<DWORD>(), u8"目标进程ID。")
 			("process-name", bpo::value<std::string>(), u8"目标进程名。")
@@ -40,7 +42,11 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 		bpo::store(bpo::wcommand_line_parser(args).options(desc).run(), vm);
 
 		bool invalidArgs = false;
-		if (vm.count("remote-thread"))
+		if (vm.count("help"))
+		{
+			std::cout << desc << std::endl;
+		}
+		else if (vm.count("remote-thread"))
 		{
 			win::Process target;
 			if (vm.count("process-id"))
@@ -118,7 +124,7 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 		}
 
 		if (invalidArgs)
-			BOOST_THROW_EXCEPTION(cpp::Exception() << cpp::err_str(u8"错误的参数。"));
+			THROW_CPP_EXCEPTION(cpp::Exception() << cpp::err_str(u8"错误的参数。"));
 
 		return 0;
 	}

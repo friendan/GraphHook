@@ -15,14 +15,14 @@ namespace di
 	{
 		std::string dllPath = Utils::GetModuleDir() + "\\" + dllName;
 		if (!bfs::exists(dllPath))
-			BOOST_THROW_EXCEPTION(Exception() << err_str(u8"文件不存在：" + dllPath));
+			THROW_CPP_EXCEPTION(Exception() << err_str(u8"文件不存在：" + dllPath));
 		std::wstring dllPathW = blc::utf_to_utf<wchar_t>(dllPath);
 		size_t dllPathSize = (dllPathW.length() + 1) * sizeof(wchar_t);
 
 		LPVOID remoteMemory = VirtualAllocEx(target, nullptr, dllPathSize, MEM_RESERVE | MEM_COMMIT,
 			PAGE_READWRITE);
 		if (remoteMemory == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		ON_SCOPE_EXIT([&]()
 		{
@@ -31,20 +31,26 @@ namespace di
 
 		SIZE_T written = 0;
 		if (!WriteProcessMemory(target, remoteMemory, dllPathW.c_str(), dllPathSize, &written))
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 		if (written != dllPathSize)
-			BOOST_THROW_EXCEPTION(Exception() << err_str(u8"写入DLL路径的长度错误。"));
+			THROW_CPP_EXCEPTION(Exception() << err_str(u8"写入DLL路径的长度错误。"));
 
 		HMODULE kernel32 = GetModuleHandle(_T("kernel32.dll"));
 		if (kernel32 == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		FARPROC loadLibrary = GetProcAddress(kernel32, "LoadLibraryW");
 		if (loadLibrary == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
-		NullHandle remoteThread = target.createRemoteThread(nullptr, 0,
+		HANDLE remoteThread = target.createRemoteThread(nullptr, 0,
 			reinterpret_cast<LPTHREAD_START_ROUTINE>(loadLibrary), remoteMemory, 0, nullptr);
+
+		ON_SCOPE_EXIT([remoteThread]()
+		{
+			CloseHandle(remoteThread);
+		});
+
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
@@ -56,14 +62,20 @@ namespace di
 
 		HMODULE kernel32 = GetModuleHandle(_T("kernel32.dll"));
 		if (kernel32 == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		FARPROC freeLibrary = GetProcAddress(kernel32, "FreeLibrary");
 		if (freeLibrary == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
-		NullHandle remoteThread = target.createRemoteThread(nullptr, 0,
+		HANDLE remoteThread = target.createRemoteThread(nullptr, 0,
 			reinterpret_cast<LPTHREAD_START_ROUTINE>(freeLibrary), module, 0, nullptr);
+
+		ON_SCOPE_EXIT([remoteThread]()
+		{
+			CloseHandle(remoteThread);
+		});
+
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
@@ -73,12 +85,12 @@ namespace di
 	{
 		std::string dllPath = Utils::GetModuleDir() + "\\" + dllName;
 		if (!bfs::exists(dllPath))
-			BOOST_THROW_EXCEPTION(Exception() << err_str(u8"文件不存在：" + dllPath));
+			THROW_CPP_EXCEPTION(Exception() << err_str(u8"文件不存在：" + dllPath));
 		std::wstring dllPathW = blc::utf_to_utf<wchar_t>(dllPath);
 
 		HMODULE dll = LoadLibrary(dllPathW.c_str());
 		if (dll == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		ON_SCOPE_EXIT([dll]()
 		{
@@ -90,14 +102,14 @@ namespace di
 
 		HookFunc_t hookFunc = reinterpret_cast<HookFunc_t>(GetProcAddress(dll, hookFuncName.c_str()));
 		if (hookFunc == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		UnhookFunc_t unhookFunc = reinterpret_cast<UnhookFunc_t>(GetProcAddress(dll, unhookFuncName.c_str()));
 		if (unhookFunc == nullptr)
-			THROW_SYSTEM_EXCEPTION(GetLastError());
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		if (!hookFunc(threadId))
-			BOOST_THROW_EXCEPTION(Exception() << err_str(u8"挂钩失败，详细信息请查看钩子DLL的log文件。"));
+			THROW_CPP_EXCEPTION(Exception() << err_str(u8"挂钩失败，详细信息请查看钩子DLL的log文件。"));
 
 		ON_SCOPE_EXIT([unhookFunc]()
 		{
