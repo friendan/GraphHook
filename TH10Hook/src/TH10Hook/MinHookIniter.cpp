@@ -1,18 +1,20 @@
 #include "TH10Hook/Common.h"
-#include "TH10Hook/MinHookWrapper.h"
+#include "TH10Hook/MinHookIniter.h"
 
 #include <MinHook.h>
 
 namespace th
 {
-	MinHookWrapper::MinHookWrapper()
+	MinHookIniter::MinHookIniter()
 	{
-		MH_STATUS status = MH_Initialize();
+		MH_STATUS status;
+
+		status = MH_Initialize();
 		if (status != MH_OK)
 			THROW_CPP_EXCEPTION(Exception() << err_str(MH_StatusToString(status)));
 	}
 
-	MinHookWrapper::~MinHookWrapper()
+	MinHookIniter::~MinHookIniter()
 	{
 		MH_Uninitialize();
 	}

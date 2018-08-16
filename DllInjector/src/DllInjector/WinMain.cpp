@@ -1,9 +1,11 @@
 #include "DllInjector/Common.h"
 
 #include <vector>
+#include <sstream>
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/log/utility/setup/file.hpp>
+#include <boost/locale.hpp>
 #include <Windows/Process.h>
 #include <Windows/Window.h>
 
@@ -11,6 +13,7 @@
 
 namespace bpo = boost::program_options;
 namespace blog = boost::log;
+namespace blc = boost::locale::conv;
 
 int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLine, int cmdShow)
 {
@@ -44,7 +47,10 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 		bool invalidArgs = false;
 		if (vm.count("help"))
 		{
-			std::cout << desc << std::endl;
+			std::ostringstream oss;
+			oss << desc;
+			std::wstring descW = blc::utf_to_utf<wchar_t>(oss.str());
+			MessageBox(nullptr, descW.c_str(), _T("DllInjector"), MB_OK | MB_ICONINFORMATION);
 		}
 		else if (vm.count("remote-thread"))
 		{

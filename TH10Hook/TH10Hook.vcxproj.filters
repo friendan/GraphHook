@@ -33,10 +33,10 @@
     <ClInclude Include="include\TH10Hook\D3D9Hook.h">
       <Filter>头文件\TH10Hook</Filter>
     </ClInclude>
-    <ClInclude Include="include\TH10Hook\MinHookWrapper.h">
+    <ClInclude Include="include\TH10Hook\MinHookFunc.h">
       <Filter>头文件\TH10Hook</Filter>
     </ClInclude>
-    <ClInclude Include="include\TH10Hook\MinHookFunc.h">
+    <ClInclude Include="include\TH10Hook\MinHookIniter.h">
       <Filter>头文件\TH10Hook</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,10 +50,10 @@
     <ClCompile Include="src\TH10Hook\D3D9Hook.cpp">
       <Filter>源文件\TH10Hook</Filter>
     </ClCompile>
-    <ClCompile Include="src\TH10Hook\MinHookWrapper.cpp">
+    <ClCompile Include="src\TH10Hook\MinHookFunc.cpp">
       <Filter>源文件\TH10Hook</Filter>
     </ClCompile>
-    <ClCompile Include="src\TH10Hook\MinHookFunc.cpp">
+    <ClCompile Include="src\TH10Hook\MinHookIniter.cpp">
       <Filter>源文件\TH10Hook</Filter>
     </ClCompile>
   </ItemGroup>

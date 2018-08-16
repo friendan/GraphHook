@@ -5,7 +5,7 @@
 #include <cpp/Singleton.h>
 #include <Windows/Event.h>
 
-#include "TH10Hook/MinHookWrapper.h"
+#include "TH10Hook/MinHookIniter.h"
 #include "TH10Hook/MinHookFunc.h"
 
 namespace th
@@ -50,7 +50,7 @@ namespace th
 
 		intptr_t* getVTable();
 
-		MinHookWrapper m_minHook;
+		MinHookIniter m_minHook;
 		MinHookFunc m_presentFunc;
 
 		Reset_t m_resetOrig;

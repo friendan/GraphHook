@@ -86,17 +86,12 @@ namespace th
 		m_presentEvent = win::Event::Open("D3DPresentEvent");
 
 		intptr_t* vtable = getVTable();
-		//m_resetTarget = reinterpret_cast<Reset_t>(vtable[16]);
-		//m_presentTarget = reinterpret_cast<Present_t>(vtable[17]);
-		//m_beginSceneTarget = reinterpret_cast<BeginScene_t>(vtable[41]);
-		//m_endSceneTarget = reinterpret_cast<EndScene_t>(vtable[42]);
-		//m_clearTarget = reinterpret_cast<Clear_t>(vtable[43]);
 
-		//MH_CreateHook(m_resetTarget, &ResetHook, reinterpret_cast<LPVOID*>(&m_resetOrig));
+		//MH_CreateHook(reinterpret_cast<Reset_t>(vtable[16]), &ResetHook, reinterpret_cast<LPVOID*>(&m_resetOrig));
 		m_presentFunc = MinHookFunc(reinterpret_cast<LPVOID>(vtable[17]), &D3D9Hook::PresentHook, reinterpret_cast<LPVOID*>(&m_presentOrig));
-		//MH_CreateHook(m_beginSceneTarget, &BeginSceneHook, reinterpret_cast<LPVOID*>(&m_beginSceneOrig));
-		//MH_CreateHook(m_endSceneTarget, &EndSceneHook, reinterpret_cast<LPVOID*>(&m_endSceneOrig));
-		//MH_CreateHook(m_clearTarget, &ClearHook, reinterpret_cast<LPVOID*>(&m_clearOrig));
+		//MH_CreateHook(reinterpret_cast<BeginScene_t>(vtable[41]), &BeginSceneHook, reinterpret_cast<LPVOID*>(&m_beginSceneOrig));
+		//MH_CreateHook(reinterpret_cast<EndScene_t>(vtable[42]), &EndSceneHook, reinterpret_cast<LPVOID*>(&m_endSceneOrig));
+		//MH_CreateHook(reinterpret_cast<Clear_t>(vtable[43]), &ClearHook, reinterpret_cast<LPVOID*>(&m_clearOrig));
 	}
 
 	void D3D9Hook::unhook()

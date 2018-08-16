@@ -171,14 +171,14 @@
     <ClInclude Include="include\TH10Hook\D3D9Hook.h" />
     <ClInclude Include="include\TH10Hook\DllMain.h" />
     <ClInclude Include="include\TH10Hook\MinHookFunc.h" />
-    <ClInclude Include="include\TH10Hook\MinHookWrapper.h" />
+    <ClInclude Include="include\TH10Hook\MinHookIniter.h" />
     <ClInclude Include="include\TH10Hook\TH10Hook.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\TH10Hook\D3D9Hook.cpp" />
     <ClCompile Include="src\TH10Hook\DllMain.cpp" />
     <ClCompile Include="src\TH10Hook\MinHookFunc.cpp" />
-    <ClCompile Include="src\TH10Hook\MinHookWrapper.cpp" />
+    <ClCompile Include="src\TH10Hook\MinHookIniter.cpp" />
     <ClCompile Include="src\TH10Hook\TH10Hook.cpp" />
   </ItemGroup>
   <ItemGroup>
