@@ -14,4 +14,4 @@ DllInjector32.exe --windows-hook --class-name="BASE" --hook-dll="TH10Hook32.dll"
 
 ## 问题
 
-风神录载入时注入会小几率炸掉，原因未明。
+在风神录载入时注入有几率会炸掉，原因未明。
