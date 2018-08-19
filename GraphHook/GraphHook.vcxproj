@@ -88,13 +88,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;GRAPHHOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_68_0;..\..\..\cpp\cpp-git\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_68_0;..\..\..\cpp\cpp-git\cpp\include;..\..\minhook-1.3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_68_0\lib32-msvc-14.1;..\..\..\cpp\cpp-git\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_68_0\lib32-msvc-14.1;..\..\..\cpp\cpp-git\Debug;..\..\minhook-1.3.3\build\VC15\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cpp.lib;libMinHook.x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)GraphHook.dll $(OutDir)GraphHook32.dll</Command>
@@ -106,13 +106,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;GRAPHHOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_68_0;..\..\..\cpp\cpp-git\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_68_0;..\..\..\cpp\cpp-git\cpp\include;..\..\minhook-1.3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_68_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_68_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Debug;..\..\minhook-1.3.3\build\VC15\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cpp.lib;libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)GraphHook.dll $(OutDir)GraphHook64.dll</Command>
@@ -126,15 +126,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;GRAPHHOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_68_0;..\..\..\cpp\cpp-git\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_68_0;..\..\..\cpp\cpp-git\cpp\include;..\..\minhook-1.3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_68_0\lib32-msvc-14.1;..\..\..\cpp\cpp-git\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_68_0\lib32-msvc-14.1;..\..\..\cpp\cpp-git\Release;..\..\minhook-1.3.3\build\VC15\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cpp.lib;libMinHook.x86.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)GraphHook.dll $(OutDir)GraphHook32.dll</Command>
@@ -148,15 +148,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;GRAPHHOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_68_0;..\..\..\cpp\cpp-git\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;..\..\..\Boost\boost_1_68_0;..\..\..\cpp\cpp-git\cpp\include;..\..\minhook-1.3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_68_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Boost\boost_1_68_0\lib64-msvc-14.1;..\..\..\cpp\cpp-git\x64\Release;..\..\minhook-1.3.3\build\VC15\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cpp.lib;libMinHook.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(OutDir)GraphHook.dll $(OutDir)GraphHook64.dll</Command>
@@ -166,10 +166,16 @@
     <ClInclude Include="include\GraphHook\Common.h" />
     <ClInclude Include="include\GraphHook\DllMain.h" />
     <ClInclude Include="include\GraphHook\GraphHook.h" />
+    <ClInclude Include="include\GraphHook\MinHookFunc.h" />
+    <ClInclude Include="include\GraphHook\MinHookIniter.h" />
+    <ClInclude Include="include\GraphHook\TH10Hook.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GraphHook\DllMain.cpp" />
     <ClCompile Include="src\GraphHook\GraphHook.cpp" />
+    <ClCompile Include="src\GraphHook\MinHookFunc.cpp" />
+    <ClCompile Include="src\GraphHook\MinHookIniter.cpp" />
+    <ClCompile Include="src\GraphHook\TH10Hook.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

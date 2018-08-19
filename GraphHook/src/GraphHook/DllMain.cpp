@@ -4,6 +4,7 @@
 #include "GraphHook/GraphHook.h"
 
 HMODULE g_dllModule = nullptr;
+gh::GraphHook g_graphHook;
 
 BOOL APIENTRY DllMain(HMODULE module, DWORD reasonForCall, LPVOID reserved)
 {
@@ -11,11 +12,10 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD reasonForCall, LPVOID reserved)
 	{
 	case DLL_PROCESS_ATTACH:
 		g_dllModule = module;
-		gh::GraphHook::StartHook();
+		g_graphHook.hook();
 		break;
 
 	case DLL_PROCESS_DETACH:
-		gh::GraphHook::StopHook();
 		break;
 
 	case DLL_THREAD_ATTACH:

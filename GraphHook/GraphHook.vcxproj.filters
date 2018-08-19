@@ -30,12 +30,30 @@
     <ClInclude Include="include\GraphHook\GraphHook.h">
       <Filter>头文件\GraphHook</Filter>
     </ClInclude>
+    <ClInclude Include="include\GraphHook\MinHookFunc.h">
+      <Filter>头文件\GraphHook</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GraphHook\MinHookIniter.h">
+      <Filter>头文件\GraphHook</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GraphHook\TH10Hook.h">
+      <Filter>头文件\GraphHook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GraphHook\DllMain.cpp">
       <Filter>源文件\GraphHook</Filter>
     </ClCompile>
     <ClCompile Include="src\GraphHook\GraphHook.cpp">
+      <Filter>源文件\GraphHook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphHook\MinHookFunc.cpp">
+      <Filter>源文件\GraphHook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphHook\MinHookIniter.cpp">
+      <Filter>源文件\GraphHook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphHook\TH10Hook.cpp">
       <Filter>源文件\GraphHook</Filter>
     </ClCompile>
   </ItemGroup>

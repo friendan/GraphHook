@@ -1,22 +1,33 @@
 #pragma once
 
-#include <boost/thread.hpp>
+#include <memory>
+#include <cpp/Singleton.h>
+#include <Windows/Window.h>
+
+#include "GraphHook/TH10Hook.h"
 
 namespace gh
 {
-	class GraphHook
+	class GraphHook :
+		public Singleton<GraphHook>
 	{
 	public:
-		static void StartHook();
-		static void StopHook();
-
 		GraphHook();
-		~GraphHook();
+
+		void hook();
 
 	private:
-		static void HookProc(HANDLE dllMainThread);
+		void unhook();
+		void exit();
+		static DWORD WINAPI exitProc(LPVOID);
+		static LRESULT CALLBACK NewWndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
+		LRESULT newWndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
+		LRESULT defWndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
 
-		static boost::thread s_hookThread;
+		Window m_window;
+		bool m_isUnicode;
+		WNDPROC m_oldWndProc;
 
+		std::shared_ptr<TH10Hook> m_th10Hook;
 	};
 }
