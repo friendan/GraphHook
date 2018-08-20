@@ -22,7 +22,7 @@ namespace gh
 		wcex.style = CS_HREDRAW | CS_VREDRAW;
 		wcex.hInstance = GetModuleHandle(nullptr);
 		wcex.lpfnWndProc = &DefWindowProc;
-		wcex.lpszClassName = _T("D3D9HookClass");
+		wcex.lpszClassName = _T("TH10HookClass");
 		if (RegisterClassEx(&wcex) == 0)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
 
@@ -31,7 +31,7 @@ namespace gh
 			UnregisterClass(wcex.lpszClassName, wcex.hInstance);
 		});
 
-		HWND window = CreateWindowEx(0, wcex.lpszClassName, _T("D3D9Hook"), WS_OVERLAPPEDWINDOW,
+		HWND window = CreateWindowEx(0, wcex.lpszClassName, _T("TH10Hook"), WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, wcex.hInstance, nullptr);
 		if (window == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
@@ -79,7 +79,7 @@ namespace gh
 
 	void TH10Hook::hook()
 	{
-		m_presentEvent = win::Event::Open("D3DPresentEvent");
+		m_presentEvent = win::Event::Open("TH10PresentEvent");
 
 		intptr_t* vtable = getVTable();
 
@@ -88,6 +88,9 @@ namespace gh
 		//MH_CreateHook(reinterpret_cast<BeginScene_t>(vtable[41]), &BeginSceneHook, reinterpret_cast<LPVOID*>(&m_beginSceneOrig));
 		//MH_CreateHook(reinterpret_cast<EndScene_t>(vtable[42]), &EndSceneHook, reinterpret_cast<LPVOID*>(&m_endSceneOrig));
 		//MH_CreateHook(reinterpret_cast<Clear_t>(vtable[43]), &ClearHook, reinterpret_cast<LPVOID*>(&m_clearOrig));
+
+		win::Event hookEvent = win::Event::Open("TH10HookEvent");
+		hookEvent.set();
 	}
 
 	void TH10Hook::unhook()
@@ -95,6 +98,9 @@ namespace gh
 		m_presentFunc = MinHookFunc();
 
 		m_presentEvent = win::Event();
+
+		win::Event unhookEvent = win::Event::Open("TH10UnhookEvent");
+		unhookEvent.set();
 	}
 
 	HRESULT STDMETHODCALLTYPE TH10Hook::ResetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters)

@@ -26,12 +26,10 @@ namespace gh
 	{
 		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\GraphHook.log";
 		blog::add_file_log(logName);
-
 		try
 		{
 			m_window = Window::FindByProcessId(GetCurrentProcessId());
 			m_isUnicode = m_window.isUnicode();
-
 			if (m_isUnicode)
 			{
 				LONG_PTR newLong = reinterpret_cast<LONG_PTR>(&GraphHook::NewWndProc);
@@ -44,7 +42,6 @@ namespace gh
 				LONG_PTR oldLong = SetWindowLongPtrA(m_window, GWLP_WNDPROC, newLong);
 				m_oldWndProc = reinterpret_cast<WNDPROC>(oldLong);
 			}
-
 			win::Event graphHookEvent = win::Event::Open("GraphHookEvent");
 			graphHookEvent.set();
 		}
@@ -71,7 +68,6 @@ namespace gh
 				SetWindowLongPtrA(m_window, GWLP_WNDPROC, oldLong);
 				m_oldWndProc = nullptr;
 			}
-
 			win::Event graphUnhookEvent = win::Event::Open("GraphUnhookEvent");
 			graphUnhookEvent.set();
 		}
@@ -84,13 +80,23 @@ namespace gh
 
 	void GraphHook::exit()
 	{
-		HANDLE thread = CreateThread(nullptr, 0, &GraphHook::exitProc, nullptr, 0, nullptr);
-		CloseHandle(thread);
+		try
+		{
+			HANDLE thread = CreateThread(nullptr, 0, &GraphHook::exitProc, nullptr, 0, nullptr);
+			if (thread == nullptr)
+				THROW_WINDOWS_EXCEPTION(GetLastError());
+			CloseHandle(thread);
+		}
+		catch (...)
+		{
+			std::string info = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << info;
+		}
 	}
 
 	DWORD GraphHook::exitProc(LPVOID)
 	{
-		Sleep(1000);
+		Sleep(100);
 		FreeLibraryAndExitThread(g_dllModule, 0);
 		return 0;
 	}
@@ -106,42 +112,40 @@ namespace gh
 		switch (msg)
 		{
 		case WM_GRAPHHOOK:
-			switch (wParam)
+			try
 			{
-			case GH_TH10_HOOK:
-				if (m_th10Hook == nullptr)
+				switch (wParam)
 				{
-					m_th10Hook = std::make_shared<TH10Hook>();
-					m_th10Hook->hook();
-				}
-				break;
+				case GH_TH10_HOOK:
+					if (m_th10Hook == nullptr)
+					{
+						m_th10Hook = std::make_shared<TH10Hook>();
+						m_th10Hook->hook();
+					}
+					break;
 
-			case GH_TH10_UNHOOK:
-				if (m_th10Hook != nullptr)
-				{
-					m_th10Hook->unhook();
-					m_th10Hook = nullptr;
-				}
-				break;
+				case GH_TH10_UNHOOK:
+					if (m_th10Hook != nullptr)
+					{
+						m_th10Hook->unhook();
+						m_th10Hook = nullptr;
+					}
+					break;
 
-			case GH_EXIT:
-				LRESULT ret = defWndProc(window, msg, wParam, lParam);
-				unhook();
-				//exit();
-				return ret;
+				case GH_EXIT:
+					LRESULT lr = defWndProc(window, msg, wParam, lParam);
+					unhook();
+					//exit();
+					return lr;
+				}
+			}
+			catch (...)
+			{
+				std::string info = boost::current_exception_diagnostic_information();
+				BOOST_LOG_TRIVIAL(error) << info;
 			}
 			break;
-
-		case WM_NCDESTROY:
-			//if (window == m_window)
-			//{
-			//	LRESULT ret = defWndProc(window, msg, wParam, lParam);
-			//	unhook();
-			//	return ret;
-			//}
-			break;
 		}
-
 		return defWndProc(window, msg, wParam, lParam);
 	}
 

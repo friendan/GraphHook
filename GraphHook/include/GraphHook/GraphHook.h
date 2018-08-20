@@ -15,10 +15,10 @@ namespace gh
 		GraphHook();
 
 		void hook();
-
-	private:
 		void unhook();
 		void exit();
+
+	private:
 		static DWORD WINAPI exitProc(LPVOID);
 		static LRESULT CALLBACK NewWndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
 		LRESULT newWndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
