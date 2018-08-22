@@ -13,10 +13,6 @@ namespace gh
 		m_endSceneOrig(nullptr),
 		m_clearOrig(nullptr)
 	{
-	}
-
-	intptr_t* TH10Hook::getVTable()
-	{
 		WNDCLASSEX wcex = {};
 		wcex.cbSize = sizeof(wcex);
 		wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -25,7 +21,6 @@ namespace gh
 		wcex.lpszClassName = _T("TH10HookClass");
 		if (RegisterClassEx(&wcex) == 0)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
-
 		ON_SCOPE_EXIT([&wcex]()
 		{
 			UnregisterClass(wcex.lpszClassName, wcex.hInstance);
@@ -35,7 +30,6 @@ namespace gh
 			CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, wcex.hInstance, nullptr);
 		if (window == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
-
 		ON_SCOPE_EXIT([window]()
 		{
 			DestroyWindow(window);
@@ -74,14 +68,8 @@ namespace gh
 			THROW_DIRECTX_EXCEPTION(hr);
 
 		intptr_t* vtable = (intptr_t*)(*((intptr_t*)d3dDevice9.p));
-		return vtable;
-	}
 
-	void TH10Hook::hook()
-	{
 		m_presentEvent = win::Event::Open("TH10PresentEvent");
-
-		intptr_t* vtable = getVTable();
 
 		//MH_CreateHook(reinterpret_cast<Reset_t>(vtable[16]), &ResetHook, reinterpret_cast<LPVOID*>(&m_resetOrig));
 		m_presentFunc = MinHookFunc(reinterpret_cast<LPVOID>(vtable[17]), &TH10Hook::PresentHook, reinterpret_cast<LPVOID*>(&m_presentOrig));
@@ -93,14 +81,18 @@ namespace gh
 		hookEvent.set();
 	}
 
-	void TH10Hook::unhook()
+	TH10Hook::~TH10Hook()
 	{
-		m_presentFunc = MinHookFunc();
-
-		m_presentEvent = win::Event();
-
-		win::Event unhookEvent = win::Event::Open("TH10UnhookEvent");
-		unhookEvent.set();
+		try
+		{
+			win::Event unhookEvent = win::Event::Open("TH10UnhookEvent");
+			unhookEvent.set();
+		}
+		catch (...)
+		{
+			std::string what = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(info) << what;
+		}
 	}
 
 	HRESULT STDMETHODCALLTYPE TH10Hook::ResetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters)

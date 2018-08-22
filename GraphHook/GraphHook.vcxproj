@@ -164,6 +164,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\GraphHook\Common.h" />
+    <ClInclude Include="include\GraphHook\D3D11Hook.h" />
+    <ClInclude Include="include\GraphHook\D3D9Hook.h" />
+    <ClInclude Include="include\GraphHook\DInput8Hook.h" />
     <ClInclude Include="include\GraphHook\DllMain.h" />
     <ClInclude Include="include\GraphHook\GraphHook.h" />
     <ClInclude Include="include\GraphHook\MinHookFunc.h" />
@@ -171,6 +174,9 @@
     <ClInclude Include="include\GraphHook\TH10Hook.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\GraphHook\D3D11Hook.cpp" />
+    <ClCompile Include="src\GraphHook\D3D9Hook.cpp" />
+    <ClCompile Include="src\GraphHook\DInput8Hook.cpp" />
     <ClCompile Include="src\GraphHook\DllMain.cpp" />
     <ClCompile Include="src\GraphHook\GraphHook.cpp" />
     <ClCompile Include="src\GraphHook\MinHookFunc.cpp" />

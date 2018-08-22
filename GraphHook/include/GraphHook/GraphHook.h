@@ -4,6 +4,7 @@
 #include <cpp/Singleton.h>
 #include <Windows/Window.h>
 
+#include "GraphHook/MinHookIniter.h"
 #include "GraphHook/TH10Hook.h"
 
 namespace gh
@@ -24,10 +25,11 @@ namespace gh
 		LRESULT newWndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
 		LRESULT defWndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
 
-		Window m_window;
+		Window m_target;
 		bool m_isUnicode;
 		WNDPROC m_oldWndProc;
 
+		std::shared_ptr<MinHookIniter> m_minHook;
 		std::shared_ptr<TH10Hook> m_th10Hook;
 	};
 }

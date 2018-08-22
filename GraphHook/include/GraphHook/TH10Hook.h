@@ -5,7 +5,6 @@
 #include <cpp/Singleton.h>
 #include <Windows/Event.h>
 
-#include "GraphHook/MinHookIniter.h"
 #include "GraphHook/MinHookFunc.h"
 
 namespace gh
@@ -26,9 +25,7 @@ namespace gh
 	{
 	public:
 		TH10Hook();
-
-		void hook();
-		void unhook();
+		~TH10Hook();
 
 	private:
 		static HRESULT STDMETHODCALLTYPE ResetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters);
@@ -47,9 +44,6 @@ namespace gh
 		HRESULT clearHook(IDirect3DDevice9* d3dDevice9, DWORD count, CONST D3DRECT* rects, DWORD flags,
 			D3DCOLOR color, float z, DWORD stencil);
 
-		intptr_t* getVTable();
-
-		MinHookIniter m_minHook;
 		MinHookFunc m_presentFunc;
 
 		Reset_t m_resetOrig;

@@ -39,6 +39,15 @@
     <ClInclude Include="include\GraphHook\TH10Hook.h">
       <Filter>头文件\GraphHook</Filter>
     </ClInclude>
+    <ClInclude Include="include\GraphHook\D3D9Hook.h">
+      <Filter>头文件\GraphHook</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GraphHook\D3D11Hook.h">
+      <Filter>头文件\GraphHook</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GraphHook\DInput8Hook.h">
+      <Filter>头文件\GraphHook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\GraphHook\DllMain.cpp">
@@ -54,6 +63,15 @@
       <Filter>源文件\GraphHook</Filter>
     </ClCompile>
     <ClCompile Include="src\GraphHook\TH10Hook.cpp">
+      <Filter>源文件\GraphHook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphHook\D3D9Hook.cpp">
+      <Filter>源文件\GraphHook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphHook\D3D11Hook.cpp">
+      <Filter>源文件\GraphHook</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphHook\DInput8Hook.cpp">
       <Filter>源文件\GraphHook</Filter>
     </ClCompile>
   </ItemGroup>

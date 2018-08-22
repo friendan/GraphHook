@@ -136,8 +136,8 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 	}
 	catch (...)
 	{
-		std::string info = boost::current_exception_diagnostic_information();
-		BOOST_LOG_TRIVIAL(error) << info;
+		std::string what = boost::current_exception_diagnostic_information();
+		BOOST_LOG_TRIVIAL(error) << what;
 		return 1;
 	}
 }

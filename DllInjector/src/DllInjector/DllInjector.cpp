@@ -23,7 +23,6 @@ namespace di
 			PAGE_READWRITE);
 		if (remoteMemory == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
-
 		ON_SCOPE_EXIT([&]()
 		{
 			VirtualFreeEx(target, remoteMemory, 0, MEM_RELEASE);
@@ -38,19 +37,16 @@ namespace di
 		HMODULE kernel32 = GetModuleHandle(_T("kernel32.dll"));
 		if (kernel32 == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
-
 		FARPROC loadLibrary = GetProcAddress(kernel32, "LoadLibraryW");
 		if (loadLibrary == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		HANDLE remoteThread = target.createRemoteThread(nullptr, 0,
 			reinterpret_cast<LPTHREAD_START_ROUTINE>(loadLibrary), remoteMemory, 0, nullptr);
-
 		ON_SCOPE_EXIT([remoteThread]()
 		{
 			CloseHandle(remoteThread);
 		});
-
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
@@ -63,19 +59,16 @@ namespace di
 		HMODULE kernel32 = GetModuleHandle(_T("kernel32.dll"));
 		if (kernel32 == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
-
 		FARPROC freeLibrary = GetProcAddress(kernel32, "FreeLibrary");
 		if (freeLibrary == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		HANDLE remoteThread = target.createRemoteThread(nullptr, 0,
 			reinterpret_cast<LPTHREAD_START_ROUTINE>(freeLibrary), module, 0, nullptr);
-
 		ON_SCOPE_EXIT([remoteThread]()
 		{
 			CloseHandle(remoteThread);
 		});
-
 		WaitForSingleObject(remoteThread, INFINITE);
 	}
 
@@ -91,7 +84,6 @@ namespace di
 		HMODULE dll = LoadLibrary(dllPathW.c_str());
 		if (dll == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
-
 		ON_SCOPE_EXIT([dll]()
 		{
 			FreeLibrary(dll);
@@ -99,18 +91,15 @@ namespace di
 
 		typedef bool(WINAPI *HookFunc_t)(DWORD);
 		typedef void(WINAPI *UnhookFunc_t)();
-
 		HookFunc_t hookFunc = reinterpret_cast<HookFunc_t>(GetProcAddress(dll, hookFuncName.c_str()));
 		if (hookFunc == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
-
 		UnhookFunc_t unhookFunc = reinterpret_cast<UnhookFunc_t>(GetProcAddress(dll, unhookFuncName.c_str()));
 		if (unhookFunc == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
 
 		if (!hookFunc(threadId))
 			THROW_CPP_EXCEPTION(Exception() << err_str(u8"挂钩失败，详细信息请查看钩子DLL的log文件。"));
-
 		ON_SCOPE_EXIT([unhookFunc]()
 		{
 			unhookFunc();

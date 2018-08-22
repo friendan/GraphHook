@@ -65,8 +65,8 @@ namespace th
 		}
 		catch (...)
 		{
-			std::string info = boost::current_exception_diagnostic_information();
-			BOOST_LOG_TRIVIAL(error) << info;
+			std::string what = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << what;
 			return false;
 		}
 	}
@@ -134,8 +134,8 @@ namespace th
 		}
 		catch (...)
 		{
-			std::string info = boost::current_exception_diagnostic_information();
-			BOOST_LOG_TRIVIAL(error) << info;
+			std::string what = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << what;
 		}
 	}
 
@@ -151,8 +151,8 @@ namespace th
 		}
 		catch (...)
 		{
-			std::string info = boost::current_exception_diagnostic_information();
-			BOOST_LOG_TRIVIAL(error) << info;
+			std::string what = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << what;
 		}
 	}
 }

@@ -28,18 +28,18 @@ namespace gh
 		blog::add_file_log(logName);
 		try
 		{
-			m_window = Window::FindByProcessId(GetCurrentProcessId());
-			m_isUnicode = m_window.isUnicode();
+			m_target = Window::FindByProcessId(GetCurrentProcessId());
+			m_isUnicode = m_target.isUnicode();
 			if (m_isUnicode)
 			{
 				LONG_PTR newLong = reinterpret_cast<LONG_PTR>(&GraphHook::NewWndProc);
-				LONG_PTR oldLong = SetWindowLongPtrW(m_window, GWLP_WNDPROC, newLong);
+				LONG_PTR oldLong = SetWindowLongPtrW(m_target, GWLP_WNDPROC, newLong);
 				m_oldWndProc = reinterpret_cast<WNDPROC>(oldLong);
 			}
 			else
 			{
 				LONG_PTR newLong = reinterpret_cast<LONG_PTR>(&GraphHook::NewWndProc);
-				LONG_PTR oldLong = SetWindowLongPtrA(m_window, GWLP_WNDPROC, newLong);
+				LONG_PTR oldLong = SetWindowLongPtrA(m_target, GWLP_WNDPROC, newLong);
 				m_oldWndProc = reinterpret_cast<WNDPROC>(oldLong);
 			}
 			win::Event graphHookEvent = win::Event::Open("GraphHookEvent");
@@ -47,8 +47,8 @@ namespace gh
 		}
 		catch (...)
 		{
-			std::string info = boost::current_exception_diagnostic_information();
-			BOOST_LOG_TRIVIAL(error) << info;
+			std::string what = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << what;
 		}
 	}
 
@@ -59,13 +59,13 @@ namespace gh
 			if (m_isUnicode)
 			{
 				LONG_PTR oldLong = reinterpret_cast<LONG_PTR>(m_oldWndProc);
-				SetWindowLongPtrW(m_window, GWLP_WNDPROC, oldLong);
+				SetWindowLongPtrW(m_target, GWLP_WNDPROC, oldLong);
 				m_oldWndProc = nullptr;
 			}
 			else
 			{
 				LONG_PTR oldLong = reinterpret_cast<LONG_PTR>(m_oldWndProc);
-				SetWindowLongPtrA(m_window, GWLP_WNDPROC, oldLong);
+				SetWindowLongPtrA(m_target, GWLP_WNDPROC, oldLong);
 				m_oldWndProc = nullptr;
 			}
 			win::Event graphUnhookEvent = win::Event::Open("GraphUnhookEvent");
@@ -73,8 +73,8 @@ namespace gh
 		}
 		catch (...)
 		{
-			std::string info = boost::current_exception_diagnostic_information();
-			BOOST_LOG_TRIVIAL(error) << info;
+			std::string what = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << what;
 		}
 	}
 
@@ -89,8 +89,8 @@ namespace gh
 		}
 		catch (...)
 		{
-			std::string info = boost::current_exception_diagnostic_information();
-			BOOST_LOG_TRIVIAL(error) << info;
+			std::string what = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << what;
 		}
 	}
 
@@ -117,32 +117,37 @@ namespace gh
 				switch (wParam)
 				{
 				case GH_TH10_HOOK:
+					if (m_minHook == nullptr)
+						m_minHook = std::make_shared<MinHookIniter>();
 					if (m_th10Hook == nullptr)
-					{
 						m_th10Hook = std::make_shared<TH10Hook>();
-						m_th10Hook->hook();
-					}
 					break;
 
 				case GH_TH10_UNHOOK:
-					if (m_th10Hook != nullptr)
-					{
-						m_th10Hook->unhook();
-						m_th10Hook = nullptr;
-					}
+					m_th10Hook = nullptr;
 					break;
 
 				case GH_EXIT:
+					m_th10Hook = nullptr;
+					m_minHook = nullptr;
 					LRESULT lr = defWndProc(window, msg, wParam, lParam);
 					unhook();
-					//exit();
+					exit();
 					return lr;
 				}
 			}
 			catch (...)
 			{
-				std::string info = boost::current_exception_diagnostic_information();
-				BOOST_LOG_TRIVIAL(error) << info;
+				std::string what = boost::current_exception_diagnostic_information();
+				BOOST_LOG_TRIVIAL(error) << what;
+			}
+			break;
+
+		case WM_NCDESTROY:
+			if (window == m_target)
+			{
+				m_th10Hook = nullptr;
+				m_minHook = nullptr;
 			}
 			break;
 		}
