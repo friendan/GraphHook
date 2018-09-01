@@ -7,11 +7,7 @@ namespace gh
 {
 	TH10Hook::TH10Hook() :
 		Singleton(this),
-		m_resetOrig(nullptr),
-		m_presentOrig(nullptr),
-		m_beginSceneOrig(nullptr),
-		m_endSceneOrig(nullptr),
-		m_clearOrig(nullptr)
+		m_presentOrig(nullptr)
 	{
 		WNDCLASSEX wcex = {};
 		wcex.cbSize = sizeof(wcex);
@@ -67,15 +63,11 @@ namespace gh
 		if (FAILED(hr))
 			THROW_DIRECTX_EXCEPTION(hr);
 
-		intptr_t* vtable = (intptr_t*)(*((intptr_t*)d3dDevice9.p));
+		uintptr_t* vtable = (uintptr_t*)(*((uintptr_t*)d3dDevice9.p));
 
 		m_presentEvent = win::Event::Open("TH10PresentEvent");
 
-		//MH_CreateHook(reinterpret_cast<Reset_t>(vtable[16]), &ResetHook, reinterpret_cast<LPVOID*>(&m_resetOrig));
 		m_presentFunc = MinHookFunc(reinterpret_cast<LPVOID>(vtable[17]), &TH10Hook::PresentHook, reinterpret_cast<LPVOID*>(&m_presentOrig));
-		//MH_CreateHook(reinterpret_cast<BeginScene_t>(vtable[41]), &BeginSceneHook, reinterpret_cast<LPVOID*>(&m_beginSceneOrig));
-		//MH_CreateHook(reinterpret_cast<EndScene_t>(vtable[42]), &EndSceneHook, reinterpret_cast<LPVOID*>(&m_endSceneOrig));
-		//MH_CreateHook(reinterpret_cast<Clear_t>(vtable[43]), &ClearHook, reinterpret_cast<LPVOID*>(&m_clearOrig));
 
 		win::Event hookEvent = win::Event::Open("TH10HookEvent");
 		hookEvent.set();
@@ -83,22 +75,16 @@ namespace gh
 
 	TH10Hook::~TH10Hook()
 	{
-		try
-		{
-			win::Event unhookEvent = win::Event::Open("TH10UnhookEvent");
-			unhookEvent.set();
-		}
-		catch (...)
-		{
-			std::string what = boost::current_exception_diagnostic_information();
-			BOOST_LOG_TRIVIAL(info) << what;
-		}
-	}
-
-	HRESULT STDMETHODCALLTYPE TH10Hook::ResetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters)
-	{
-		TH10Hook& th10Hook = TH10Hook::GetInstance();
-		return th10Hook.resetHook(d3dDevice9, presentationParameters);
+		//try
+		//{
+		//	win::Event unhookEvent = win::Event::Open("TH10UnhookEvent");
+		//	unhookEvent.set();
+		//}
+		//catch (...)
+		//{
+		//	std::string what = boost::current_exception_diagnostic_information();
+		//	BOOST_LOG_TRIVIAL(info) << what;
+		//}
 	}
 
 	HRESULT STDMETHODCALLTYPE TH10Hook::PresentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
@@ -106,31 +92,6 @@ namespace gh
 	{
 		TH10Hook& th10Hook = TH10Hook::GetInstance();
 		return th10Hook.presentHook(d3dDevice9, sourceRect, destRect, destWindowOverride, dirtyRegion);
-	}
-
-	HRESULT STDMETHODCALLTYPE TH10Hook::BeginSceneHook(IDirect3DDevice9* d3dDevice9)
-	{
-		TH10Hook& th10Hook = TH10Hook::GetInstance();
-		return th10Hook.beginSceneHook(d3dDevice9);
-	}
-
-	HRESULT STDMETHODCALLTYPE TH10Hook::EndSceneHook(IDirect3DDevice9* d3dDevice9)
-	{
-		TH10Hook& th10Hook = TH10Hook::GetInstance();
-		return th10Hook.endSceneHook(d3dDevice9);
-	}
-
-	HRESULT STDMETHODCALLTYPE TH10Hook::ClearHook(IDirect3DDevice9* d3dDevice9, DWORD count, CONST D3DRECT* rects, DWORD flags,
-		D3DCOLOR color, float z, DWORD stencil)
-	{
-		TH10Hook& th10Hook = TH10Hook::GetInstance();
-		return th10Hook.clearHook(d3dDevice9, count, rects, flags, color, z, stencil);
-	}
-
-	HRESULT TH10Hook::resetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters)
-	{
-		HRESULT hr = m_resetOrig(d3dDevice9, presentationParameters);
-		return hr;
 	}
 
 	HRESULT TH10Hook::presentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
@@ -141,25 +102,6 @@ namespace gh
 
 		HRESULT hr = m_presentOrig(d3dDevice9, sourceRect, destRect, destWindowOverride, dirtyRegion);
 
-		return hr;
-	}
-
-	HRESULT TH10Hook::beginSceneHook(IDirect3DDevice9* d3dDevice9)
-	{
-		HRESULT hr = m_beginSceneOrig(d3dDevice9);
-		return hr;
-	}
-
-	HRESULT TH10Hook::endSceneHook(IDirect3DDevice9* d3dDevice9)
-	{
-		HRESULT hr = m_endSceneOrig(d3dDevice9);
-		return hr;
-	}
-
-	HRESULT TH10Hook::clearHook(IDirect3DDevice9* d3dDevice9, DWORD count, CONST D3DRECT* rects, DWORD flags,
-		D3DCOLOR color, float z, DWORD stencil)
-	{
-		HRESULT hr = m_clearOrig(d3dDevice9, count, rects, flags, color, z, stencil);
 		return hr;
 	}
 }

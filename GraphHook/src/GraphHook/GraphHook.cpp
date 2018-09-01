@@ -8,10 +8,9 @@
 
 namespace gh
 {
-#define WM_GRAPHHOOK	(WM_USER + 0x1234)
-#define GH_EXIT			0x1235
-#define GH_TH10_HOOK	0x1236
-#define GH_TH10_UNHOOK	0x1237
+#define GH_HOOK			(WM_USER + 0x1234)
+#define GH_UNHOOK		(WM_USER + 0x1235)
+#define GH_TH10HOOK		0x0001
 
 	namespace blog = boost::log;
 
@@ -22,10 +21,11 @@ namespace gh
 	{
 	}
 
-	void GraphHook::hook()
+	void GraphHook::subclass()
 	{
 		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\GraphHook.log";
 		blog::add_file_log(logName);
+
 		try
 		{
 			m_target = Window::FindByProcessId(GetCurrentProcessId());
@@ -42,8 +42,9 @@ namespace gh
 				LONG_PTR oldLong = SetWindowLongPtrA(m_target, GWLP_WNDPROC, newLong);
 				m_oldWndProc = reinterpret_cast<WNDPROC>(oldLong);
 			}
-			win::Event graphHookEvent = win::Event::Open("GraphHookEvent");
-			graphHookEvent.set();
+
+			win::Event hookEvent = win::Event::Open("GraphHookEvent");
+			hookEvent.set();
 		}
 		catch (...)
 		{
@@ -52,7 +53,7 @@ namespace gh
 		}
 	}
 
-	void GraphHook::unhook()
+	void GraphHook::unsubclass()
 	{
 		try
 		{
@@ -68,8 +69,9 @@ namespace gh
 				SetWindowLongPtrA(m_target, GWLP_WNDPROC, oldLong);
 				m_oldWndProc = nullptr;
 			}
-			win::Event graphUnhookEvent = win::Event::Open("GraphUnhookEvent");
-			graphUnhookEvent.set();
+
+			//win::Event unhookEvent = win::Event::Open("GraphUnhookEvent");
+			//unhookEvent.set();
 		}
 		catch (...)
 		{
@@ -111,30 +113,14 @@ namespace gh
 	{
 		switch (msg)
 		{
-		case WM_GRAPHHOOK:
+		case GH_HOOK:
 			try
 			{
-				switch (wParam)
-				{
-				case GH_TH10_HOOK:
-					if (m_minHook == nullptr)
-						m_minHook = std::make_shared<MinHookIniter>();
-					if (m_th10Hook == nullptr)
-						m_th10Hook = std::make_shared<TH10Hook>();
-					break;
+				if (m_minHook == nullptr)
+					m_minHook = std::make_shared<MinHookIniter>();
 
-				case GH_TH10_UNHOOK:
-					m_th10Hook = nullptr;
-					break;
-
-				case GH_EXIT:
-					m_th10Hook = nullptr;
-					m_minHook = nullptr;
-					LRESULT lr = defWndProc(window, msg, wParam, lParam);
-					unhook();
-					exit();
-					return lr;
-				}
+				if ((wParam & GH_TH10HOOK) && m_th10Hook == nullptr)
+					m_th10Hook = std::make_shared<TH10Hook>();
 			}
 			catch (...)
 			{
@@ -143,7 +129,17 @@ namespace gh
 			}
 			break;
 
-		case WM_NCDESTROY:
+		case GH_UNHOOK:
+		{
+			m_th10Hook = nullptr;
+			m_minHook = nullptr;
+			LRESULT lr = defWndProc(window, msg, wParam, lParam);
+			unsubclass();
+			exit();
+			return lr;
+		}
+
+		case WM_DESTROY:
 			if (window == m_target)
 			{
 				m_th10Hook = nullptr;
@@ -151,6 +147,7 @@ namespace gh
 			}
 			break;
 		}
+
 		return defWndProc(window, msg, wParam, lParam);
 	}
 

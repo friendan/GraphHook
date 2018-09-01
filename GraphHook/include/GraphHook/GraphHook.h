@@ -15,8 +15,8 @@ namespace gh
 	public:
 		GraphHook();
 
-		void hook();
-		void unhook();
+		void subclass();
+		void unsubclass();
 		void exit();
 
 	private:

@@ -12,7 +12,7 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD reasonForCall, LPVOID reserved)
 	{
 	case DLL_PROCESS_ATTACH:
 		g_dllModule = module;
-		g_graphHook.hook();
+		g_graphHook.subclass();
 		break;
 
 	case DLL_PROCESS_DETACH:
