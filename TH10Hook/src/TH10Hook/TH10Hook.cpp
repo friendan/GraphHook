@@ -32,7 +32,7 @@ void WINAPI Unhook()
 
 namespace th
 {
-	namespace blog = boost::log;
+	namespace bl = boost::log;
 
 	TH10Hook::TH10Hook() :
 		Singleton(this)
@@ -47,7 +47,7 @@ namespace th
 	bool TH10Hook::hook(DWORD threadId)
 	{
 		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\TH10Hook.log";
-		blog::add_file_log(logName);
+		bl::add_file_log(logName);
 
 		try
 		{
@@ -122,7 +122,7 @@ namespace th
 	void TH10Hook::hookD3D()
 	{
 		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\TH10Hook1.log";
-		blog::add_file_log(logName);
+		bl::add_file_log(logName);
 
 		try
 		{

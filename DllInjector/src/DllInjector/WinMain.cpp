@@ -12,13 +12,13 @@
 #include "DllInjector/DllInjector.h"
 
 namespace bpo = boost::program_options;
-namespace blog = boost::log;
+namespace bl = boost::log;
 namespace blc = boost::locale::conv;
 
 int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLine, int cmdShow)
 {
 	std::string logName = win::Utils::GetModuleDir() + "\\DllInjector.log";
-	blog::add_file_log(logName);
+	bl::add_file_log(logName);
 
 	try
 	{
@@ -74,13 +74,13 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 				if (vm.count("inject-dll"))
 				{
 					std::string dllName = vm["inject-dll"].as<std::string>();
-					win::Process::EnableDebugPrivilege();
+					di::DllInjector::EnableDebugPrivilege();
 					di::DllInjector::Inject(target, dllName);
 				}
 				else if (vm.count("uninject-dll"))
 				{
 					std::string dllName = vm["uninject-dll"].as<std::string>();
-					win::Process::EnableDebugPrivilege();
+					di::DllInjector::EnableDebugPrivilege();
 					di::DllInjector::Uninject(target, dllName);
 				}
 				else
@@ -119,7 +119,7 @@ int APIENTRY _tWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLin
 				std::string unhookFuncName = vm["unhook-func"].as<std::string>();
 				std::string hookEventName = vm["hook-event"].as<std::string>();
 				std::string unhookEventName = vm["unhook-event"].as<std::string>();
-				win::Process::EnableDebugPrivilege();
+				di::DllInjector::EnableDebugPrivilege();
 				di::DllInjector::HookProc(threadId, dllName, hookFuncName, unhookFuncName,
 					hookEventName, unhookEventName);
 			}

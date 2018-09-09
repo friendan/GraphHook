@@ -12,7 +12,7 @@ namespace gh
 #define GH_UNHOOK		(WM_USER + 0x1235)
 #define GH_TH10HOOK		0x0001
 
-	namespace blog = boost::log;
+	namespace bl = boost::log;
 
 	GraphHook::GraphHook() :
 		Singleton(this),
@@ -24,7 +24,7 @@ namespace gh
 	void GraphHook::subclass()
 	{
 		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\GraphHook.log";
-		blog::add_file_log(logName);
+		bl::add_file_log(logName);
 
 		try
 		{

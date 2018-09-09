@@ -11,6 +11,30 @@ namespace di
 	namespace bfs = boost::filesystem;
 	namespace blc = boost::locale::conv;
 
+	void DllInjector::EnableDebugPrivilege()
+	{
+		HANDLE token = nullptr;
+		if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token))
+			THROW_WINDOWS_EXCEPTION(GetLastError());
+		ON_SCOPE_EXIT([token]()
+		{
+			CloseHandle(token);
+		});
+
+		LUID luid = {};
+		if (!LookupPrivilegeValue(nullptr, SE_DEBUG_NAME, &luid))
+			THROW_WINDOWS_EXCEPTION(GetLastError());
+
+		TOKEN_PRIVILEGES tp = {};
+		tp.PrivilegeCount = 1;
+		tp.Privileges[0].Luid = luid;
+		tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+		if (!AdjustTokenPrivileges(token, FALSE, &tp, sizeof(tp), nullptr, nullptr))
+			THROW_WINDOWS_EXCEPTION(GetLastError());
+		if (GetLastError() == ERROR_NOT_ALL_ASSIGNED)
+			THROW_CPP_EXCEPTION(Exception() << err_str(u8"请以管理员身份运行。"));
+	}
+
 	void DllInjector::Inject(Process& target, const std::string& dllName)
 	{
 		std::string dllPath = Utils::GetModuleDir() + "\\" + dllName;
