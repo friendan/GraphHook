@@ -25,7 +25,6 @@ namespace gh
 	private:
 		static HRESULT STDMETHODCALLTYPE PresentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
 			HWND destWindowOverride, CONST RGNDATA* dirtyRegion);
-
 		HRESULT presentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
 			HWND destWindowOverride, CONST RGNDATA* dirtyRegion);
 

@@ -21,7 +21,7 @@ namespace gh
 	{
 	}
 
-	void GraphHook::subclass()
+	void GraphHook::attach()
 	{
 		std::string logName = Utils::GetModuleDir(g_dllModule) + "\\GraphHook.log";
 		bl::add_file_log(logName);
@@ -30,6 +30,7 @@ namespace gh
 		{
 			m_target = Window::FindByProcessId(GetCurrentProcessId());
 			m_isUnicode = m_target.isUnicode();
+
 			if (m_isUnicode)
 			{
 				LONG_PTR newLong = reinterpret_cast<LONG_PTR>(&GraphHook::NewWndProc);
@@ -53,7 +54,7 @@ namespace gh
 		}
 	}
 
-	void GraphHook::unsubclass()
+	void GraphHook::detach()
 	{
 		try
 		{
@@ -118,7 +119,6 @@ namespace gh
 			{
 				if (m_minHook == nullptr)
 					m_minHook = std::make_shared<MinHookIniter>();
-
 				if ((wParam & GH_TH10HOOK) && m_th10Hook == nullptr)
 					m_th10Hook = std::make_shared<TH10Hook>();
 			}
@@ -133,8 +133,9 @@ namespace gh
 		{
 			m_th10Hook = nullptr;
 			m_minHook = nullptr;
+
 			LRESULT lr = defWndProc(window, msg, wParam, lParam);
-			unsubclass();
+			detach();
 			exit();
 			return lr;
 		}

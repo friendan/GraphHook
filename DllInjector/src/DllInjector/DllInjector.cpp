@@ -65,8 +65,10 @@ namespace di
 		if (loadLibrary == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
 
-		HANDLE remoteThread = target.createRemoteThread(nullptr, 0,
+		HANDLE remoteThread = CreateRemoteThread(target, nullptr, 0,
 			reinterpret_cast<LPTHREAD_START_ROUTINE>(loadLibrary), remoteMemory, 0, nullptr);
+		if (remoteThread == nullptr)
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 		ON_SCOPE_EXIT([remoteThread]()
 		{
 			CloseHandle(remoteThread);
@@ -87,8 +89,10 @@ namespace di
 		if (freeLibrary == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
 
-		HANDLE remoteThread = target.createRemoteThread(nullptr, 0,
+		HANDLE remoteThread = CreateRemoteThread(target, nullptr, 0,
 			reinterpret_cast<LPTHREAD_START_ROUTINE>(freeLibrary), module, 0, nullptr);
+		if (remoteThread == nullptr)
+			THROW_WINDOWS_EXCEPTION(GetLastError());
 		ON_SCOPE_EXIT([remoteThread]()
 		{
 			CloseHandle(remoteThread);

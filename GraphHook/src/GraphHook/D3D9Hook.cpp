@@ -16,8 +16,8 @@ namespace gh
 		WNDCLASSEX wcex = {};
 		wcex.cbSize = sizeof(wcex);
 		wcex.style = CS_HREDRAW | CS_VREDRAW;
-		wcex.hInstance = GetModuleHandle(nullptr);
 		wcex.lpfnWndProc = &DefWindowProc;
+		wcex.hInstance = GetModuleHandle(nullptr);
 		wcex.lpszClassName = _T("D3D9HookClass");
 		if (RegisterClassEx(&wcex) == 0)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
@@ -38,7 +38,6 @@ namespace gh
 		HMODULE d3d9Dll = GetModuleHandle(_T("d3d9.dll"));
 		if (d3d9Dll == nullptr)
 			THROW_WINDOWS_EXCEPTION(GetLastError());
-
 		Direct3DCreate9_t direct3DCreate9 = reinterpret_cast<Direct3DCreate9_t>(
 			GetProcAddress(d3d9Dll, "Direct3DCreate9"));
 		if (direct3DCreate9 == nullptr)
