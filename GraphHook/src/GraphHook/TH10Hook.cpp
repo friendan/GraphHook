@@ -41,7 +41,8 @@ namespace gh
 
 		HRESULT hr;
 
-		CComPtr<IDirect3D9> d3d9 = direct3DCreate9(D3D_SDK_VERSION);
+		CComPtr<IDirect3D9> d3d9;
+		d3d9.p = direct3DCreate9(D3D_SDK_VERSION);
 		if (d3d9 == nullptr)
 			THROW_CPP_EXCEPTION(Exception() << err_str("Direct3DCreate9() failed."));
 

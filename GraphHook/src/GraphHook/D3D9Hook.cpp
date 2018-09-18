@@ -45,7 +45,8 @@ namespace gh
 
 		HRESULT hr;
 
-		CComPtr<IDirect3D9> d3d9 = direct3DCreate9(D3D_SDK_VERSION);
+		CComPtr<IDirect3D9> d3d9;
+		d3d9.p = direct3DCreate9(D3D_SDK_VERSION);
 		if (d3d9 == nullptr)
 			THROW_CPP_EXCEPTION(Exception() << err_str("Direct3DCreate9() failed."));
 
@@ -82,16 +83,6 @@ namespace gh
 
 	D3D9Hook::~D3D9Hook()
 	{
-		//try
-		//{
-		//	win::Event unhookEvent = win::Event::Open("D3D9UnhookEvent");
-		//	unhookEvent.set();
-		//}
-		//catch (...)
-		//{
-		//	std::string what = boost::current_exception_diagnostic_information();
-		//	BOOST_LOG_TRIVIAL(info) << what;
-		//}
 	}
 
 	HRESULT STDMETHODCALLTYPE D3D9Hook::ResetHook(IDirect3DDevice9* d3dDevice9, D3DPRESENT_PARAMETERS* presentationParameters)
@@ -135,11 +126,17 @@ namespace gh
 	HRESULT D3D9Hook::presentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
 		HWND destWindowOverride, CONST RGNDATA* dirtyRegion)
 	{
-		//m_presentEvent.set();
-		SetEvent(m_presentEvent);
+		try
+		{
+			capture(d3dDevice9);
+		}
+		catch (...)
+		{
+			std::string what = boost::current_exception_diagnostic_information();
+			BOOST_LOG_TRIVIAL(error) << what;
+		}
 
 		HRESULT hr = m_presentOrig(d3dDevice9, sourceRect, destRect, destWindowOverride, dirtyRegion);
-
 		return hr;
 	}
 
@@ -160,5 +157,39 @@ namespace gh
 	{
 		HRESULT hr = m_clearOrig(d3dDevice9, count, rects, flags, color, z, stencil);
 		return hr;
+	}
+
+	void D3D9Hook::capture(IDirect3DDevice9* d3dDevice9)
+	{
+		HRESULT hr;
+
+		if (m_destSurface == nullptr)
+		{
+			CComPtr<IDirect3D9> d3d9;
+			hr = d3dDevice9->GetDirect3D(&d3d9);
+			if (FAILED(hr))
+				THROW_DIRECTX_EXCEPTION(hr);
+
+			D3DDISPLAYMODE d3ddm = {};
+			hr = d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm);
+			if (FAILED(hr))
+				THROW_DIRECTX_EXCEPTION(hr);
+
+			hr = d3dDevice9->CreateOffscreenPlainSurface(d3ddm.Width, d3ddm.Height, d3ddm.Format,
+				D3DPOOL_SYSTEMMEM, &m_destSurface, nullptr);
+			if (FAILED(hr))
+				THROW_DIRECTX_EXCEPTION(hr);
+		}
+
+		CComPtr<IDirect3DSurface9> renderTarget;
+		hr = d3dDevice9->GetRenderTarget(0, &renderTarget);
+		if (FAILED(hr))
+			THROW_DIRECTX_EXCEPTION(hr);
+
+		hr = d3dDevice9->GetRenderTargetData(renderTarget, m_destSurface);
+		if (FAILED(hr))
+			THROW_DIRECTX_EXCEPTION(hr);
+
+
 	}
 }

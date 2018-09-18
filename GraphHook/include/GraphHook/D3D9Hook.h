@@ -21,7 +21,7 @@ namespace gh
 	typedef HRESULT(STDMETHODCALLTYPE *Clear_t)(IDirect3DDevice9*, DWORD, CONST D3DRECT*, DWORD, D3DCOLOR, float, DWORD);
 
 	class D3D9Hook :
-		public Singleton<D3D9Hook>
+		private Singleton<D3D9Hook>
 	{
 	public:
 		D3D9Hook();
@@ -44,6 +44,8 @@ namespace gh
 		HRESULT clearHook(IDirect3DDevice9* d3dDevice9, DWORD count, CONST D3DRECT* rects, DWORD flags,
 			D3DCOLOR color, float z, DWORD stencil);
 
+		void capture(IDirect3DDevice9* d3dDevice9);
+
 		MinHookFunc m_presentFunc;
 
 		Reset_t m_resetOrig;
@@ -53,5 +55,7 @@ namespace gh
 		Clear_t m_clearOrig;
 
 		win::Event m_presentEvent;
+
+		CComPtr<IDirect3DSurface9> m_destSurface;
 	};
 }

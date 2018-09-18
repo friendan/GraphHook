@@ -10,14 +10,13 @@
 namespace gh
 {
 	class GraphHook :
-		public Singleton<GraphHook>
+		private Singleton<GraphHook>
 	{
 	public:
 		GraphHook();
 
 		void attach();
 		void detach();
-		void exit();
 
 	private:
 		static DWORD WINAPI exitProc(LPVOID);

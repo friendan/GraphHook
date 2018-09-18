@@ -71,24 +71,13 @@ namespace gh
 				m_oldWndProc = nullptr;
 			}
 
-			//win::Event unhookEvent = win::Event::Open("GraphUnhookEvent");
-			//unhookEvent.set();
-		}
-		catch (...)
-		{
-			std::string what = boost::current_exception_diagnostic_information();
-			BOOST_LOG_TRIVIAL(error) << what;
-		}
-	}
-
-	void GraphHook::exit()
-	{
-		try
-		{
 			HANDLE thread = CreateThread(nullptr, 0, &GraphHook::exitProc, nullptr, 0, nullptr);
 			if (thread == nullptr)
 				THROW_WINDOWS_EXCEPTION(GetLastError());
 			CloseHandle(thread);
+
+			//win::Event unhookEvent = win::Event::Open("GraphUnhookEvent");
+			//unhookEvent.set();
 		}
 		catch (...)
 		{
@@ -133,10 +122,8 @@ namespace gh
 		{
 			m_th10Hook = nullptr;
 			m_minHook = nullptr;
-
 			LRESULT lr = defWndProc(window, msg, wParam, lParam);
 			detach();
-			exit();
 			return lr;
 		}
 
