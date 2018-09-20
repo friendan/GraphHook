@@ -11,6 +11,7 @@ namespace gh
 #define GH_HOOK			(WM_USER + 0x1234)
 #define GH_UNHOOK		(WM_USER + 0x1235)
 #define GH_TH10HOOK		0x0001
+#define GH_D3D9HOOK		0x0002
 
 	namespace bl = boost::log;
 
@@ -110,6 +111,8 @@ namespace gh
 					m_minHook = std::make_shared<MinHookIniter>();
 				if ((wParam & GH_TH10HOOK) && m_th10Hook == nullptr)
 					m_th10Hook = std::make_shared<TH10Hook>();
+				if ((wParam & GH_D3D9HOOK) && m_d3d9Hook == nullptr)
+					m_d3d9Hook = std::make_shared<D3D9Hook>();
 			}
 			catch (...)
 			{
@@ -120,6 +123,7 @@ namespace gh
 
 		case GH_UNHOOK:
 		{
+			m_d3d9Hook = nullptr;
 			m_th10Hook = nullptr;
 			m_minHook = nullptr;
 			LRESULT lr = defWndProc(window, msg, wParam, lParam);
@@ -130,6 +134,7 @@ namespace gh
 		case WM_DESTROY:
 			if (window == m_target)
 			{
+				m_d3d9Hook = nullptr;
 				m_th10Hook = nullptr;
 				m_minHook = nullptr;
 			}

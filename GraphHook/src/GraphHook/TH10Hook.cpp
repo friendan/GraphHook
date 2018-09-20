@@ -46,24 +46,24 @@ namespace gh
 		if (d3d9 == nullptr)
 			THROW_CPP_EXCEPTION(Exception() << err_str("Direct3DCreate9() failed."));
 
-		D3DDISPLAYMODE d3ddm = {};
-		hr = d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3ddm);
+		D3DDISPLAYMODE mode = {};
+		hr = d3d9->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &mode);
 		if (FAILED(hr))
 			THROW_DIRECTX_EXCEPTION(hr);
 
-		D3DPRESENT_PARAMETERS d3dpp = {};
-		d3dpp.Windowed = TRUE;
-		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-		d3dpp.BackBufferFormat = d3ddm.Format;
+		D3DPRESENT_PARAMETERS pp = {};
+		pp.Windowed = TRUE;
+		pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+		pp.BackBufferFormat = mode.Format;
 
-		CComPtr<IDirect3DDevice9> d3dDevice9;
+		CComPtr<IDirect3DDevice9> device;
 		hr = d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window,
 			D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
-			&d3dpp, &d3dDevice9);
+			&pp, &device);
 		if (FAILED(hr))
 			THROW_DIRECTX_EXCEPTION(hr);
 
-		uintptr_t* vtable = (uintptr_t*)(*((uintptr_t*)d3dDevice9.p));
+		uintptr_t* vtable = (uintptr_t*)(*((uintptr_t*)device.p));
 
 		m_presentEvent = win::Event::Open("TH10PresentEvent");
 
@@ -87,20 +87,20 @@ namespace gh
 		//}
 	}
 
-	HRESULT STDMETHODCALLTYPE TH10Hook::PresentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
+	HRESULT STDMETHODCALLTYPE TH10Hook::PresentHook(IDirect3DDevice9* device, CONST RECT* sourceRect, CONST RECT* destRect,
 		HWND destWindowOverride, CONST RGNDATA* dirtyRegion)
 	{
 		TH10Hook& th10Hook = TH10Hook::GetInstance();
-		return th10Hook.presentHook(d3dDevice9, sourceRect, destRect, destWindowOverride, dirtyRegion);
+		return th10Hook.presentHook(device, sourceRect, destRect, destWindowOverride, dirtyRegion);
 	}
 
-	HRESULT TH10Hook::presentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
+	HRESULT TH10Hook::presentHook(IDirect3DDevice9* device, CONST RECT* sourceRect, CONST RECT* destRect,
 		HWND destWindowOverride, CONST RGNDATA* dirtyRegion)
 	{
 		//m_presentEvent.set();
 		SetEvent(m_presentEvent);
 
-		HRESULT hr = m_presentOrig(d3dDevice9, sourceRect, destRect, destWindowOverride, dirtyRegion);
+		HRESULT hr = m_presentOrig(device, sourceRect, destRect, destWindowOverride, dirtyRegion);
 
 		return hr;
 	}

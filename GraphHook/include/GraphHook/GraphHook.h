@@ -6,6 +6,7 @@
 
 #include "GraphHook/MinHookIniter.h"
 #include "GraphHook/TH10Hook.h"
+#include "GraphHook/D3D9Hook.h"
 
 namespace gh
 {
@@ -30,5 +31,6 @@ namespace gh
 
 		std::shared_ptr<MinHookIniter> m_minHook;
 		std::shared_ptr<TH10Hook> m_th10Hook;
+		std::shared_ptr<D3D9Hook> m_d3d9Hook;
 	};
 }

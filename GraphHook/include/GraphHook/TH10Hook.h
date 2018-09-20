@@ -23,10 +23,10 @@ namespace gh
 		~TH10Hook();
 
 	private:
-		static HRESULT STDMETHODCALLTYPE PresentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
+		static HRESULT STDMETHODCALLTYPE PresentHook(IDirect3DDevice9* device, CONST RECT* sourceRect, CONST RECT* destRect,
 			HWND destWindowOverride, CONST RGNDATA* dirtyRegion);
 
-		HRESULT presentHook(IDirect3DDevice9* d3dDevice9, CONST RECT* sourceRect, CONST RECT* destRect,
+		HRESULT presentHook(IDirect3DDevice9* device, CONST RECT* sourceRect, CONST RECT* destRect,
 			HWND destWindowOverride, CONST RGNDATA* dirtyRegion);
 
 		MinHookFunc m_presentFunc;
